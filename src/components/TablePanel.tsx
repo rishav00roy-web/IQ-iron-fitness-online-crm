@@ -17,20 +17,40 @@ export default function TablePanel() {
     
     // Slight delay to allow React to render InvoiceTemplate with the new member
     setTimeout(async () => {
-      const html2pdf = (await import('html2pdf.js')).default;
-      const element = document.getElementById('invoice-template');
-      if (!element) return;
-      
-      const opt: any = {
-        margin:       0,
-        filename:     `Receipt_${member.name.replace(/\s+/g, '_')}.pdf`,
-        image:        { type: 'jpeg', quality: 1 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'px', format: [1000, 720], orientation: 'landscape' }
-      };
+      try {
+        const html2canvas = (await import('html2canvas')).default;
+        const { jsPDF } = await import('jspdf');
+        
+        const wrapper = document.getElementById('invoice-wrapper');
+        const element = document.getElementById('invoice-template');
+        if (!wrapper || !element) return;
+        
+        // Temporarily bring into view but keep invisible
+        const originalCssText = wrapper.style.cssText;
+        wrapper.style.cssText = 'position: fixed; top: 0; left: -9999px;';
 
-      // Generate PDF, then open WA link
-      html2pdf().set(opt).from(element).save().then(() => {
+        const canvas = await html2canvas(element, { 
+          scale: 2, 
+          useCORS: true,
+          backgroundColor: '#ffffff',
+          scrollY: 0
+        });
+        
+        // Restore immediately
+        wrapper.style.cssText = originalCssText;
+
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        
+        // Perfect 1-page fit
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'px',
+          format: [canvas.width / 2, canvas.height / 2]
+        });
+        
+        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width / 2, canvas.height / 2);
+        pdf.save(`Receipt_${member.name.replace(/\s+/g, '_')}.pdf`);
+
         const phone = member.phone ? member.phone.replace(/[^0-9]/g, '') : '';
         const msg = `Hi ${member.name}, please find attached the receipt for your gym membership fee. Thank you!`;
         if (phone) {
@@ -39,7 +59,9 @@ export default function TablePanel() {
         } else {
           alert('Bill downloaded. No phone number to send WhatsApp message.');
         }
-      });
+      } catch (err) {
+        console.error("PDF generation failed:", err);
+      }
     }, 200);
   };
 

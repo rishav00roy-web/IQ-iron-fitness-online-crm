@@ -17,7 +17,7 @@ function AppContent() {
       <TablePanel />
       <Dialogs />
       {/* Hidden invoice for PDF generation */}
-      <div style={{ position: 'absolute', top: 0, left: 0, width: 0, height: 0, overflow: 'visible', zIndex: -100, pointerEvents: 'none' }}>
+      <div id="invoice-wrapper" style={{ position: 'fixed', left: '200vw', top: 0 }}>
         <InvoiceTemplate member={selectedMember} />
       </div>
       <footer className="app-footer">
