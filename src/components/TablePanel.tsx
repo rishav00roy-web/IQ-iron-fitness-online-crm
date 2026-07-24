@@ -24,9 +24,9 @@ export default function TablePanel() {
       const opt: any = {
         margin:       0,
         filename:     `Receipt_${member.name.replace(/\s+/g, '_')}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        image:        { type: 'jpeg', quality: 1 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'px', format: [1000, 720], orientation: 'landscape' }
       };
 
       // Generate PDF, then open WA link
