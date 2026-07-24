@@ -76,7 +76,33 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const fetchMembers = async () => {
     setLoading(true);
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      console.warn("Supabase not configured locally.");
+      console.warn("Supabase not configured locally. Using mock data.");
+      setMembers([
+        {
+          id: "1", name: "Raj Sharma", phone: "9876543210", dob: "1990-05-15",
+          membership_type: "Monthly", start_date: "2026-06-25", expiry_date: "2026-07-25",
+          has_personal_trainer: true, trainer_name: "Rahul", total_fee: 1500, pending_amount: 500,
+          renewal_streak: 2, created_at: "2026-06-25T10:00:00Z"
+        },
+        {
+          id: "2", name: "Priya Patel", phone: "9123456789", dob: "1995-08-20",
+          membership_type: "Quarterly", start_date: "2026-05-10", expiry_date: "2026-08-10",
+          has_personal_trainer: false, total_fee: 4000, pending_amount: 0,
+          renewal_streak: 5, created_at: "2026-05-10T09:30:00Z"
+        },
+        {
+          id: "3", name: "Amit Kumar", phone: "9988776655", dob: "1988-12-05",
+          membership_type: "Yearly", start_date: "2025-07-20", expiry_date: "2026-07-20",
+          has_personal_trainer: true, trainer_name: "Vikram", total_fee: 12000, pending_amount: 0,
+          renewal_streak: 1, created_at: "2025-07-20T11:15:00Z"
+        },
+        {
+          id: "4", name: "Neha Singh", phone: "9876501234", dob: "1992-03-30",
+          membership_type: "Monthly", start_date: "2026-06-01", expiry_date: "2026-07-01",
+          has_personal_trainer: false, total_fee: 1500, pending_amount: 1500,
+          renewal_streak: 0, created_at: "2026-06-01T14:45:00Z"
+        }
+      ]);
       setLoading(false);
       return;
     }

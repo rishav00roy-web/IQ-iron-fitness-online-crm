@@ -3,6 +3,36 @@ import React, { useState, useEffect } from "react";
 import { useCRM } from "@/context/CRMContext";
 import { supabase } from "@/lib/supabase";
 
+const Modal = ({ isOpen, onClose, id, children }: { isOpen: boolean, onClose: () => void, id: string, children: React.ReactNode }) => {
+  const dialogRef = React.useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    if (isOpen && !dialog.open) {
+      dialog.showModal();
+    } else if (!isOpen && dialog.open) {
+      dialog.classList.add('closing');
+      setTimeout(() => {
+        dialog.classList.remove('closing');
+        dialog.close();
+      }, 180);
+    }
+  }, [isOpen]);
+
+  const handleCancel = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    onClose();
+  };
+
+  return (
+    <dialog id={id} ref={dialogRef} onCancel={handleCancel}>
+      {children}
+    </dialog>
+  );
+};
+
 export default function Dialogs() {
   const { 
     isAddOpen, setIsAddOpen, 
@@ -238,7 +268,7 @@ export default function Dialogs() {
   const trainerPlaceholder = '{{trainer_name}}';
   return (
     <>
-      <dialog id="dialog-add" open={isAddOpen}>
+      <Modal id="dialog-add" isOpen={isAddOpen} onClose={() => setIsAddOpen(false)}>
 <div className="dialog-header">
 <h3>Add New Member</h3>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsAddOpen(false)}>
@@ -335,8 +365,8 @@ export default function Dialogs() {
 <button type="button" className="btn btn-ghost close-dialog" onClick={() => setIsAddOpen(false)}>Cancel</button>
 <button type="submit" form="form-add" className="btn btn-primary" id="btn-add-submit">Save Member</button>
 </div>
-</dialog>
-<dialog id="dialog-edit" open={isEditOpen}>
+</Modal>
+<Modal id="dialog-edit" isOpen={isEditOpen} onClose={() => setIsEditOpen(false)}>
 <div className="dialog-header">
 <h3>Edit Member</h3>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsEditOpen(false)}>
@@ -440,8 +470,8 @@ export default function Dialogs() {
 <button type="button" className="btn btn-ghost close-dialog" onClick={() => setIsEditOpen(false)}>Cancel</button>
 <button type="submit" form="form-edit" className="btn btn-primary" id="btn-edit-submit">Update Member</button>
 </div>
-</dialog>
-<dialog id="dialog-payments" open={isPaymentsOpen}>
+</Modal>
+<Modal id="dialog-payments" isOpen={isPaymentsOpen} onClose={() => setIsPaymentsOpen(false)}>
 <div className="dialog-header">
 <div>
 <h3 id="pay-dialog-name">Payment History</h3>
@@ -458,8 +488,8 @@ export default function Dialogs() {
 <div className="dialog-actions">
 <button className="btn btn-ghost close-dialog" data-dialog="dialog-payments">Close</button>
 </div>
-</dialog>
-<dialog id="dialog-broadcast" open={isBroadcastOpen}>
+</Modal>
+<Modal id="dialog-broadcast" isOpen={isBroadcastOpen} onClose={() => setIsBroadcastOpen(false)}>
 <div className="dialog-header">
 <div>
 <h3 id="broadcast-dialog-title">Message — <span id="broadcast-member-name"></span></h3>
@@ -480,8 +510,8 @@ export default function Dialogs() {
 <button type="button" className="btn btn-ghost close-dialog" onClick={() => setIsBroadcastOpen(false)}>Cancel</button>
 <button type="submit" form="form-broadcast" className="btn btn-primary" id="btn-broadcast-submit">Send Message</button>
 </div>
-</dialog>
-<dialog id="dialog-delete" open={isDeleteOpen}>
+</Modal>
+<Modal id="dialog-delete" isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)}>
 <div className="dialog-header">
 <h3 style={{}}>Confirm Deletion</h3>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsDeleteOpen(false)}>
@@ -497,8 +527,8 @@ export default function Dialogs() {
 <button type="button" className="btn btn-ghost close-dialog" onClick={() => setIsDeleteOpen(false)}>Keep Member</button>
 <button className="btn btn-danger" id="btn-delete-confirm" onClick={handleDelete}>Delete Permanently</button>
 </div>
-</dialog>
-<dialog id="dialog-trainers" open={isTrainersOpen}>
+</Modal>
+<Modal id="dialog-trainers" isOpen={isTrainersOpen} onClose={() => setIsTrainersOpen(false)}>
 <div className="dialog-header">
 <h3>Manage Trainers</h3>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsTrainersOpen(false)}>
@@ -515,8 +545,8 @@ export default function Dialogs() {
 <div className="dialog-actions">
 <button type="button" className="btn btn-ghost close-dialog" onClick={() => setIsTrainersOpen(false)}>Done</button>
 </div>
-</dialog>
-<dialog id="dialog-settings" open={isSettingsOpen}>
+</Modal>
+<Modal id="dialog-settings" isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)}>
 <div className="dialog-header">
 <h3>Settings</h3>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsSettingsOpen(false)}>
@@ -580,8 +610,8 @@ export default function Dialogs() {
 <div className="dialog-actions">
 <button type="button" className="btn btn-primary close-dialog" onClick={() => setIsSettingsOpen(false)}>Save & Close</button>
 </div>
-</dialog>
-<dialog id="dialog-broadcast-all" open={isBroadcastAllOpen}>
+</Modal>
+<Modal id="dialog-broadcast-all" isOpen={isBroadcastAllOpen} onClose={() => setIsBroadcastAllOpen(false)}>
 <div className="dialog-header">
 <div>
 <h3>Broadcast All</h3>
@@ -613,7 +643,7 @@ export default function Dialogs() {
 <button type="button" className="btn btn-ghost close-dialog" onClick={() => setIsBroadcastAllOpen(false)}>Cancel</button>
 <button className="btn btn-primary" id="btn-broadcast-all-submit" onClick={handleBroadcastAll}>Send to All Visible</button>
 </div>
-</dialog>
+</Modal>
     </>
   );
 }
