@@ -9,7 +9,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
 
   const invoiceNumber = `INV-${Math.floor(Math.random() * 100000).toString().padStart(5, '0')}`;
   
-  const total = member.plan_amount || 0;
+  const total = member.total_fee || 0;
   const balance = member.pending_amount || 0;
   const paid = total - balance;
 
@@ -51,8 +51,8 @@ export default function InvoiceTemplate({ member }: { member: any }) {
         </div>
         <div style={{ textAlign: 'right' }}>
           <h3 style={{ margin: '0 0 10px 0', fontSize: '16px', color: '#4b5563', textTransform: 'uppercase' }}>Membership Details:</h3>
-          <p style={{ margin: '0 0 5px 0' }}>Plan: <strong>{member.plan || 'Custom Plan'}</strong></p>
-          <p style={{ margin: 0 }}>Expiry: <strong>{new Date(member.end_date).toLocaleDateString('en-IN')}</strong></p>
+          <p style={{ margin: '0 0 5px 0' }}>Plan: <strong>{member.membership_type || 'Custom Plan'}</strong></p>
+          <p style={{ margin: 0 }}>Expiry: <strong>{new Date(member.expiry_date).toLocaleDateString('en-IN')}</strong></p>
         </div>
       </div>
 
@@ -66,7 +66,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
         </thead>
         <tbody>
           <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-            <td style={{ padding: '16px 12px' }}>Gym Membership Fee ({member.plan})</td>
+            <td style={{ padding: '16px 12px' }}>Gym Membership Fee ({member.membership_type})</td>
             <td style={{ padding: '16px 12px', textAlign: 'right' }}>₹{total.toLocaleString('en-IN')}</td>
           </tr>
         </tbody>
