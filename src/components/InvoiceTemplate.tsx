@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 export default function InvoiceTemplate({ member }: { member: any }) {
   if (!member) return null;
@@ -7,7 +7,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
     day: 'numeric', month: 'long', year: 'numeric'
   });
 
-  const invoiceNumber = `INV-${Math.floor(Math.random() * 100000).toString().padStart(5, '0')}`;
+  const invoiceNumber = useMemo(() => `INV-${Math.floor(Math.random() * 100000).toString().padStart(5, '0')}`, []);
   
   const total = member.total_fee || 0;
   const balance = member.pending_amount || 0;

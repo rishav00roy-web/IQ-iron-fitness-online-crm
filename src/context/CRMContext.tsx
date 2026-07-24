@@ -116,6 +116,7 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchMembers();
 
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return;
