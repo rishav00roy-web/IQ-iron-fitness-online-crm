@@ -10,6 +10,9 @@ export const supabase = supabaseUrl
       from: () => ({
         select: () => ({
           order: async () => ({ data: [], error: { message: "Supabase not configured locally" } })
-        })
+        }),
+        insert: async () => ({ data: null, error: { message: "Supabase not connected. This is just a preview!" } }),
+        update: () => ({ eq: async () => ({ data: null, error: null }) }),
+        delete: () => ({ eq: async () => ({ data: null, error: null }) })
       })
     } as any)
