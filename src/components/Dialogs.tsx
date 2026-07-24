@@ -17,22 +17,52 @@ export default function Dialogs() {
     fetchMembers
   } = useCRM();
 
+  const [addForm, setAddForm] = useState({
+    name: "", phone: "", dob: "", membership_type: "monthly",
+    start_date: "", expiry_date: "", has_personal_trainer: "no",
+    trainer_name: "", total_fee: 0, paid_now: 0, balance_due: 0, notes: ""
+  });
+
+  const handleAddChange = (field: string, value: any) => {
+    setAddForm(prev => {
+      const next = { ...prev, [field]: value };
+      
+      if ((field === 'start_date' || field === 'membership_type') && next.start_date) {
+        const start = new Date(next.start_date);
+        let months = 1;
+        if (next.membership_type === 'quarterly') months = 3;
+        if (next.membership_type === 'half_yearly') months = 6;
+        if (next.membership_type === 'yearly') months = 12;
+        start.setMonth(start.getMonth() + months);
+        next.expiry_date = start.toISOString().split('T')[0];
+      }
+      
+      if (field === 'total_fee' || field === 'paid_now') {
+        const total = parseFloat(next.total_fee as any) || 0;
+        const paid = parseFloat(next.paid_now as any) || 0;
+        next.balance_due = Math.max(0, total - paid);
+      }
+      
+      return next;
+    });
+  };
+
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
     const newMember = {
-      name: (form.elements.namedItem("add-name") as HTMLInputElement).value,
-      phone: (form.elements.namedItem("add-phone") as HTMLInputElement).value,
-      dob: (form.elements.namedItem("add-dob") as HTMLInputElement).value || null,
-      membership_type: (form.elements.namedItem("add-membership-type") as HTMLSelectElement).value,
-      start_date: (form.elements.namedItem("add-start") as HTMLInputElement).value || null,
-      expiry_date: (form.elements.namedItem("add-expiry") as HTMLInputElement).value || null,
-      has_personal_trainer: (form.elements.namedItem("add-has-pt") as HTMLSelectElement).value === 'yes',
-      trainer_name: (form.elements.namedItem("add-trainer-name") as HTMLSelectElement).value,
-      total_fee: parseFloat((form.elements.namedItem("add-fee") as HTMLInputElement).value) || 0,
-      pending_amount: parseFloat((form.elements.namedItem("add-balance") as HTMLInputElement).value) || 0,
+      name: addForm.name,
+      phone: addForm.phone,
+      dob: addForm.dob || null,
+      membership_type: addForm.membership_type,
+      start_date: addForm.start_date || null,
+      expiry_date: addForm.expiry_date || null,
+      has_personal_trainer: addForm.has_personal_trainer === 'yes',
+      trainer_name: addForm.trainer_name,
+      total_fee: parseFloat(addForm.total_fee as any) || 0,
+      pending_amount: parseFloat(addForm.balance_due as any) || 0,
       renewal_streak: 0,
       created_at: new Date().toISOString(),
+      notes: addForm.notes
     };
     
     const { error } = await supabase.from('members').insert(newMember);
@@ -44,6 +74,12 @@ export default function Dialogs() {
     
     setIsAddOpen(false);
     fetchMembers();
+    // Reset form
+    setAddForm({
+      name: "", phone: "", dob: "", membership_type: "monthly",
+      start_date: "", expiry_date: "", has_personal_trainer: "no",
+      trainer_name: "", total_fee: 0, paid_now: 0, balance_due: 0, notes: ""
+    });
   };
 
   
@@ -116,19 +152,76 @@ export default function Dialogs() {
     setIsBroadcastAllOpen(false);
   };
   
+  // --- Settings State ---
+  const defaultTemplates = {
+    expiry: "Hi {{name}}, your gym membership is expiring on {{expiry_date}}. Please renew.",
+    dues: "Hi {{name}}, you have pending dues of ₹{{due_amount}}. Please clear them.",
+    birthday: "Happy Birthday {{name}}!",
+    welcome: "Welcome to the gym, {{name}}!",
+  };
+
+  const [settings, setSettings] = useState({
+    templates: { ...defaultTemplates },
+    system: { currency: "₹", countryCode: "+91", expiryDays: 7 }
+  });
+
+  const [selectedTpl, setSelectedTpl] = useState<keyof typeof defaultTemplates>('expiry');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('gymSettings');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setSettings(prev => ({
+          templates: { ...prev.templates, ...(parsed.templates || {}) },
+          system: { ...prev.system, ...(parsed.system || {}) }
+        }));
+      } catch (e) {}
+    }
+  }, []);
+
+  const handleSettingsChange = (field: string, value: any, category: 'templates' | 'system' = 'templates') => {
+    setSettings(prev => {
+      const next = {
+        ...prev,
+        [category]: { ...prev[category], [field]: value }
+      };
+      localStorage.setItem('gymSettings', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const renderPreview = (text: string) => {
+    if (!text) return <span className="preview-empty">Start typing to preview…</span>;
+    return (
+      <span>
+        {text
+          .replace(/{{name}}/g, 'Raj Sharma')
+          .replace(/{{expiry_date}}/g, '25-08-2026')
+          .replace(/{{start_date}}/g, '25-07-2026')
+          .replace(/{{due_amount}}/g, '1500')
+          .replace(/{{membership_type}}/g, 'Monthly')
+          .replace(/{{trainer_name}}/g, 'Rahul')
+          .replace(/{{trainer_line}}/g, 'Your trainer Rahul is waiting.')}
+      </span>
+    );
+  };
+  
   const handleBroadcast = (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const msgType = (form.elements.namedItem("b-message-type") as HTMLSelectElement).value;
+    const msgType = (form.elements.namedItem("b-message-type") as HTMLSelectElement).value as keyof typeof defaultTemplates;
     
-    let text = "";
-    if (msgType === "expiry") {
-      text = `Hi ${selectedMember?.name || ''}, your gym membership is expiring soon. Please renew.`;
-    } else if (msgType === "dues") {
-      text = `Hi ${selectedMember?.name || ''}, you have pending dues of ₹${selectedMember?.pending_amount}. Please clear them.`;
-    } else {
-      text = `Hi ${selectedMember?.name || ''}, hope you're having a great day!`;
-    }
+    let text = settings.templates[msgType] || `Hi {{name}}!`;
+    
+    text = text
+      .replace(/{{name}}/g, selectedMember?.name || '')
+      .replace(/{{expiry_date}}/g, selectedMember?.expiry_date || '')
+      .replace(/{{start_date}}/g, selectedMember?.start_date || '')
+      .replace(/{{due_amount}}/g, (selectedMember?.pending_amount || 0).toString())
+      .replace(/{{membership_type}}/g, selectedMember?.membership_type || '')
+      .replace(/{{trainer_name}}/g, selectedMember?.trainer_name || '')
+      .replace(/{{trainer_line}}/g, selectedMember?.has_personal_trainer ? `Your trainer ${selectedMember?.trainer_name} is waiting.` : '');
     
     const phone = selectedMember?.phone || '';
     if (!phone) {
@@ -136,13 +229,13 @@ export default function Dialogs() {
       return;
     }
     
-    const url = `https://wa.me/91${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(text)}`;
+    const url = `https://wa.me/${settings.system.countryCode.replace('+', '')}${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
     setIsBroadcastOpen(false);
   };
 
-  const namePlaceholder = '{name}';
-  const trainerPlaceholder = '{trainer_name}';
+  const namePlaceholder = '{{name}}';
+  const trainerPlaceholder = '{{trainer_name}}';
   return (
     <>
       <dialog id="dialog-add" open={isAddOpen}>
@@ -157,21 +250,21 @@ export default function Dialogs() {
 <div className="form-row-2">
 <div className="form-group">
 <label className="form-label">Full Name <span className="req">*</span></label>
-<input autoComplete="off" className="form-input" id="add-name" name="add-name" placeholder="Raj Sharma" required type="text"/>
+<input autoComplete="off" className="form-input" id="add-name" name="add-name" placeholder="Raj Sharma" required type="text" value={addForm.name} onChange={(e) => handleAddChange('name', e.target.value)}/>
 </div>
 <div className="form-group">
 <label className="form-label">WhatsApp Number <span className="req">*</span></label>
-<input autoComplete="off" className="form-input" id="add-phone" name="add-phone" placeholder="9876543210" required type="tel"/>
+<input autoComplete="off" className="form-input" id="add-phone" name="add-phone" placeholder="9876543210" required type="tel" value={addForm.phone} onChange={(e) => handleAddChange('phone', e.target.value)}/>
 </div>
 </div>
 <div className="form-row-2">
 <div className="form-group">
 <label className="form-label">Date of Birth <span className="req">*</span></label>
-<input className="form-input" id="add-dob" name="add-dob" required type="date"/>
+<input className="form-input" id="add-dob" name="add-dob" required type="date" value={addForm.dob} onChange={(e) => handleAddChange('dob', e.target.value)}/>
 </div>
 <div className="form-group">
 <label className="form-label">Membership Type <span className="req">*</span></label>
-<select className="form-select" id="add-membership-type" name="add-membership-type" required>
+<select className="form-select" id="add-membership-type" name="add-membership-type" required value={addForm.membership_type} onChange={(e) => handleAddChange('membership_type', e.target.value)}>
 <option value="monthly">Monthly</option>
 <option value="quarterly">Quarterly (3 mo)</option>
 <option value="half_yearly">Half Yearly (6 mo)</option>
@@ -182,11 +275,11 @@ export default function Dialogs() {
 <div className="form-row-2">
 <div className="form-group">
 <label className="form-label">Start Date <span className="req">*</span></label>
-<input className="form-input" id="add-start-date" name="add-start" required type="date"/>
+<input className="form-input" id="add-start-date" name="add-start" required type="date" value={addForm.start_date} onChange={(e) => handleAddChange('start_date', e.target.value)}/>
 </div>
 <div className="form-group">
 <label className="form-label">Expiry Date</label>
-<input className="form-input" id="add-expiry" name="add-expiry" readOnly style={{}} type="date"/>
+<input className="form-input" id="add-expiry" name="add-expiry" readOnly style={{}} type="date" value={addForm.expiry_date}/>
 <span className="form-hint">Auto-calculated from type + start</span>
 </div>
 </div>
@@ -194,14 +287,14 @@ export default function Dialogs() {
 <div className="form-row-2">
 <div className="form-group">
 <label className="form-label">Personal Trainer</label>
-<select className="form-select" id="add-has-pt" name="add-has-pt">
+<select className="form-select" id="add-has-pt" name="add-has-pt" value={addForm.has_personal_trainer} onChange={(e) => handleAddChange('has_personal_trainer', e.target.value)}>
 <option value="no">No PT</option>
 <option value="yes">Has PT</option>
 </select>
 </div>
 <div className="form-group" id="add-trainer-group" style={{}}>
 <label className="form-label">Trainer Name</label>
-<select className="form-select" id="add-trainer-name" name="add-trainer-name">
+<select className="form-select" id="add-trainer-name" name="add-trainer-name" value={addForm.trainer_name} onChange={(e) => handleAddChange('trainer_name', e.target.value)}>
 <option value="">— Select Trainer —</option>
 </select>
 </div>
@@ -212,21 +305,21 @@ export default function Dialogs() {
 <label className="form-label">Total Fee <span className="req">*</span></label>
 <div className="input-prefix-wrap">
 <span className="input-prefix currency-prefix">₹</span>
-<input className="form-input prefixed" id="add-total-fee" min="0" name="add-fee" placeholder="0" type="number" defaultValue="0"/>
+<input className="form-input prefixed" id="add-total-fee" min="0" name="add-fee" placeholder="0" type="number" value={addForm.total_fee || ''} onChange={(e) => handleAddChange('total_fee', e.target.value)}/>
 </div>
 </div>
 <div className="form-group">
 <label className="form-label">Paid Now</label>
 <div className="input-prefix-wrap">
 <span className="input-prefix currency-prefix">₹</span>
-<input className="form-input prefixed" id="add-paid-now" min="0" placeholder="0" type="number" defaultValue="0"/>
+<input className="form-input prefixed" id="add-paid-now" min="0" placeholder="0" type="number" value={addForm.paid_now || ''} onChange={(e) => handleAddChange('paid_now', e.target.value)}/>
 </div>
 </div>
 <div className="form-group">
 <label className="form-label">Balance Due</label>
 <div className="input-prefix-wrap">
 <span className="input-prefix currency-prefix">₹</span>
-<input className="form-input prefixed" id="add-balance" name="add-balance" min="0" readOnly style={{}} type="number" defaultValue="0"/>
+<input className="form-input prefixed" id="add-balance" name="add-balance" min="0" readOnly style={{}} type="number" value={addForm.balance_due}/>
 </div>
 <span className="form-hint">Auto = Total − Paid</span>
 </div>
@@ -234,7 +327,7 @@ export default function Dialogs() {
 <div className="form-divider"><span>Notes</span></div>
 <div className="form-group">
 <label className="form-label">Internal Notes</label>
-<textarea className="form-textarea" id="add-notes" placeholder="Goals, health notes, preferences…" rows={2}></textarea>
+<textarea className="form-textarea" id="add-notes" placeholder="Goals, health notes, preferences…" rows={2} value={addForm.notes} onChange={(e) => handleAddChange('notes', e.target.value)}></textarea>
 </div>
 </form>
 </div>
@@ -435,7 +528,7 @@ export default function Dialogs() {
 <div className="settings-section-title">Broadcast Templates</div>
 <div className="form-group">
 <label className="form-label">Template Type</label>
-<select className="form-select" id="tpl-select">
+<select className="form-select" id="tpl-select" value={selectedTpl} onChange={(e) => setSelectedTpl(e.target.value as any)}>
 <option value="expiry">Membership Renewal</option>
 <option value="dues">Payment Due Reminder</option>
 <option value="birthday">Birthday Greeting</option>
@@ -444,7 +537,7 @@ export default function Dialogs() {
 </div>
 <div className="form-group">
 <label className="form-label">Message</label>
-<textarea className="form-textarea" id="tpl-editor" rows={5}></textarea>
+<textarea className="form-textarea" id="tpl-editor" rows={5} value={settings.templates[selectedTpl]} onChange={(e) => handleSettingsChange(selectedTpl, e.target.value, 'templates')}></textarea>
 <div className="pills">
 <span className="pill" data-var="{namePlaceholder}">{namePlaceholder}</span>
 <span className="pill" data-var="{{expiry_date}}">{"{{expiry_date}}"}</span>
@@ -457,7 +550,7 @@ export default function Dialogs() {
 </div>
 <div className="form-group">
 <label className="form-label">Preview</label>
-<div className="preview-box" id="tpl-preview"><span className="preview-empty">Start typing to preview…</span></div>
+<div className="preview-box" id="tpl-preview">{renderPreview(settings.templates[selectedTpl])}</div>
 </div>
 </div>
 <div className="settings-section">
@@ -465,18 +558,21 @@ export default function Dialogs() {
 <div className="form-row-2">
 <div className="form-group">
 <label className="form-label">Currency</label>
-<select className="form-select" id="s-currency">
+<select className="form-select" id="s-currency" value={settings.system.currency} onChange={(e) => handleSettingsChange('currency', e.target.value, 'system')}>
 <option value="₹">INR (₹)</option>
+<option value="$">USD ($)</option>
+<option value="€">EUR (€)</option>
+<option value="£">GBP (£)</option>
 </select>
 </div>
 <div className="form-group">
 <label className="form-label">Country Code</label>
-<input className="form-input" id="s-country-code" placeholder="+91" type="text" defaultValue="+91"/>
+<input className="form-input" id="s-country-code" placeholder="+91" type="text" value={settings.system.countryCode} onChange={(e) => handleSettingsChange('countryCode', e.target.value, 'system')}/>
 </div>
 </div>
 <div className="form-group">
 <label className="form-label">Expiry Alert Window (Days)</label>
-<input className="form-input" id="s-expiry-days" max="60" min="1" type="number" defaultValue="7"/>
+<input className="form-input" id="s-expiry-days" max="60" min="1" type="number" value={settings.system.expiryDays} onChange={(e) => handleSettingsChange('expiryDays', parseInt(e.target.value) || 7, 'system')}/>
 <span className="form-hint">Members expiring within this window are flagged "Expiring"</span>
 </div>
 </div>
