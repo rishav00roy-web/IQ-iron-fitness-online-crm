@@ -43,8 +43,9 @@ export default function TablePanel() {
       if (!wrapper || !element) return;
 
       // Temporarily bring into view but keep invisible
+      // position absolute and a large width prevents mobile viewports from squishing the element
       const originalCssText = wrapper.style.cssText;
-      wrapper.style.cssText = 'position: fixed; top: 0; left: -9999px; display: block;';
+      wrapper.style.cssText = 'position: absolute; top: -9999px; left: -9999px; min-width: 1000px; display: block; overflow: visible;';
 
       try {
         // html2canvas-pro is a drop-in replacement for html2canvas that
@@ -68,7 +69,7 @@ export default function TablePanel() {
 
         // Perfect 1-page fit
         const pdf = new jsPDF({
-          orientation: 'landscape',
+          orientation: 'portrait',
           unit: 'px',
           format: [canvas.width / 2, canvas.height / 2]
         });

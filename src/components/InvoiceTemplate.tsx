@@ -67,6 +67,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       style={{
         backgroundColor: "#ffffff",
         width: "1000px", // Fixed width so html2canvas renders correctly
+        minHeight: "1414px", // Fixed height to enforce portrait layout
         padding: "0",
       }}
     >
