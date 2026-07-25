@@ -12,27 +12,6 @@ export default function TablePanel() {
     setIsBroadcastOpen, setIsDeleteOpen
   } = useCRM();
 
-  // Wait for two animation frames (lets React commit + browser paint the
-  // new member into InvoiceTemplate) instead of guessing with a fixed delay.
-  const waitForNextPaint = () =>
-    new Promise<void>((resolve) => {
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-    });
-
-  // Wait for every <img> inside the target element to finish loading (or
-  // fail) so the signature image can't get cut off by a race condition.
-  const waitForImages = (element: HTMLElement) => {
-    const imgs = Array.from(element.querySelectorAll('img'));
-    return Promise.all(
-      imgs.map((img) => {
-        if (img.complete) return Promise.resolve();
-        return new Promise<void>((resolve) => {
-          img.addEventListener('load', () => resolve(), { once: true });
-          img.addEventListener('error', () => resolve(), { once: true });
-        });
-      })
-    );
-  };
 
   const handleGenerateBill = (member: any) => {
     setSelectedMember(member);
