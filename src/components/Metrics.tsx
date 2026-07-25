@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { useCRM } from "@/context/CRMContext";
 
 export default function Metrics() {
-  const { members } = useCRM();
+  const { members, setActiveTab } = useCRM();
 
   const stats = useMemo(() => {
     let active = 0;

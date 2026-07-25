@@ -11,7 +11,7 @@ export default function Header() {
       return;
     }
     
-    const headers = ["ID", "Name", "Phone", "Membership Type", "Start Date", "Expiry Date", "Total Fee", "Pending Amount", "Status"];
+    const headers = ["ID", "Name", "Phone", "Membership Type", "Start Date", "Expiry Date", "Total Fee", "Pending Amount"];
     const csvContent = [
       headers.join(","),
       ...members.map(m => [
@@ -22,8 +22,7 @@ export default function Header() {
         m.start_date, 
         m.expiry_date, 
         m.total_fee, 
-        m.pending_amount, 
-        m.status
+        m.pending_amount
       ].join(","))
     ].join("\n");
 
