@@ -92,7 +92,7 @@ export default function PrintInvoicePage() {
 
   return (
     <div className="flex justify-center bg-white min-h-screen p-0 m-0 print:p-0">
-      <div className="w-[1000px] h-[1414px] origin-top-left">
+      <div className="w-[1000px] h-[1414px] origin-top-left print-scale-wrapper">
         <InvoiceTemplate member={member} />
       </div>
     </div>

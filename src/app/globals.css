@@ -1311,6 +1311,201 @@ dialog::backdrop { backdrop-filter: none !important; }
 }
 
 /* ─── Print Styles ─────────────────────────────────────────────────────────── */
+.header-actions {
+    justify-content: stretch;
+    width: 100%;
+  }
+
+  .header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .toolbar {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .toolbar .btn {
+    flex: 1 1 calc(50% - 8px);
+    justify-content: center;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .grid-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 12px;
+  }
+  
+  .search-wrap {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .tabs {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    justify-content: flex-start;
+  }
+  
+  .tabs::-webkit-scrollbar {
+    height: 4px;
+  }
+  .tabs::-webkit-scrollbar-thumb {
+    background: var(--border-2);
+    border-radius: 4px;
+  }
+  
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .data-table {
+    min-width: 800px; /* Force table to be wide enough to prevent squishing */
+  }
+  
+  dialog {
+    width: 95vw !important;
+    max-height: 90vh !important;
+    margin: auto !important;
+    padding: 0 !important;
+    border-radius: 16px !important;
+  }
+  
+  .dialog-body {
+    padding: 16px;
+    max-height: 70vh;
+  }
+
+  .dialog-actions {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .dialog-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .form-row, .form-row-2, .form-row-3 {
+    grid-template-columns: 1fr !important;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .app-footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+    padding-bottom: env(safe-area-inset-bottom, 20px); /* iPhone home indicator safe area */
+  }
+}
+
+/* ─── Premium Mobile Optimization (iPhone 15 Pro Max, OnePlus 12R) ─── */
+@media (max-width: 450px) {
+  .app {
+    padding: 8px;
+    gap: 12px;
+  }
+  
+  .app-header {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .header-actions .btn {
+    font-size: 0.75rem;
+    padding: 0.45rem 0.8rem;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .metric-label {
+    font-size: 0.6rem;
+  }
+  
+  .metric-sub {
+    font-size: 0.65rem;
+  }
+  
+  .grid-toolbar {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .tabs .tab {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.72rem;
+  }
+  
+  .data-table {
+    min-width: 700px;
+    font-size: 0.75rem;
+  }
+  
+  .data-table td, .data-table thead th {
+    padding: 0.6rem 0.8rem;
+  }
+  
+  dialog {
+    width: 98vw !important;
+    max-height: 95vh !important;
+    border-radius: 12px !important;
+  }
+
+  .dialog-header {
+    padding: 1.1rem 1.2rem;
+  }
+  
+  .dialog-body {
+    padding: 1.1rem 1.2rem;
+  }
+
+  .dialog-actions {
+    padding: 1.1rem 1.2rem;
+  }
+}
+
+/* ─── Button Mobile Responsiveness ─────────────────────────────────────────── */
+@media (hover: none) {
+  /* Disable sticky hovers on touch devices */
+  .btn:hover, .btn-primary:hover, .btn-secondary:hover, .btn-ghost:hover, .btn-danger:hover, .btn-icon:hover {
+    transform: none !important;
+    background: inherit; 
+    /* We can't perfectly reset background to inherit for all without breaking, 
+       but transform is the main offender. */
+  }
+}
+/* Add snappy active states for all buttons */
+.btn:active, .btn-primary:active, .btn-secondary:active, .btn-ghost:active, .btn-danger:active {
+  transform: scale(0.96) !important;
+  opacity: 0.9;
+}
+.btn-icon:active {
+  transform: scale(0.85) !important;
+  opacity: 0.8;
+}
+
+/* ─── Print Styles ─────────────────────────────────────────────────────────── */
 @media print {
   body {
     -webkit-print-color-adjust: exact !important;
@@ -1318,5 +1513,9 @@ dialog::backdrop { backdrop-filter: none !important; }
   }
   @page {
     margin: 0;
+  }
+  .print-scale-wrapper {
+    transform: scale(0.79); /* Scales 1000px down to ~790px (A4 width at 96 DPI) */
+    transform-origin: top left;
   }
 }
