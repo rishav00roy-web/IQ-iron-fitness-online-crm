@@ -6,54 +6,102 @@ import {
   FileText,
   CalendarDays,
   User,
-  Award,
-  List,
-  CheckCircle,
-  Dumbbell,
+  Clock,
   Mail,
+  Building2,
+  Landmark,
+  CreditCard,
+  QrCode,
+  Dumbbell
 } from "lucide-react";
 
 export default function InvoiceTemplate({ member }: { member: any }) {
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [invoiceDate, setInvoiceDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
 
-  // TODO(antigravity): fill in real business contact details.
   const BUSINESS = {
     name: "IQ IRON FITNESS",
     tagline: "WHERE INTELLIGENCE MEETS IRON",
     phone: "+91 98765 43210",
-    addressLine1: "123 Iron Avenue, Fitness Square",
-    addressLine2: "Mumbai, MH 400001",
-    email: "contact@iqironfitness.com",
+    addressLine1: "123, Power House Road,",
+    addressLine2: "Kothrud, Pune - 411038, Maharashtra, India",
+    email: "info@iqironfitness.com",
     website: "www.iqironfitness.com",
+    gstin: "27ABCDE1234F1Z5"
   };
 
   useEffect(() => {
-    setInvoiceNumber(
-      `INV-${Math.floor(Math.random() * 100000).toString().padStart(5, "0")}`,
-    );
-    setInvoiceDate(
-      new Date().toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
-    );
+    setInvoiceNumber(`INV-${Math.floor(Math.random() * 100000).toString().padStart(5, "0")}`);
+    
+    const today = new Date();
+    setInvoiceDate(today.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase());
+    
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 14);
+    setDueDate(nextWeek.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase());
   }, [member]);
 
   if (!member) return null;
 
-  const total = member.total_fee || 0;
-  const balance = member.pending_amount || 0;
-  const paid = total - balance;
+  // Use dynamic member details if available, else placeholders matching the mock
+  const memberName = member.name || "Mr. Rishav Roy";
+  const memberPhone = member.phone || "+91 91234 56789";
+  const memberEmail = member.email || "rishavroy@email.com";
+  // The address might not be in member object, using mock
+  const memberAddress1 = "45, Green Park Avenue,";
+  const memberAddress2 = "Kolkata - 700019, West Bengal, India";
 
-  let paymentStatus = "PARTIALLY PAID";
-  if (balance === 0) paymentStatus = "PAID IN FULL";
-  if (paid === 0) paymentStatus = "UNPAID";
+  const total = member.total_fee || 14160;
+  const subtotal = 12620;
+  const discount = 620;
+  const taxableAmount = 12000;
+  const cgst = 1080;
+  const sgst = 1080;
 
-  let statusBg = "bg-orange-100 text-orange-700 border-orange-200";
-  if (paymentStatus === "PAID IN FULL") statusBg = "bg-emerald-100 text-emerald-700 border-emerald-200";
-  if (paymentStatus === "UNPAID") statusBg = "bg-rose-100 text-rose-700 border-rose-200";
+  // Static mock items for exact visual parity
+  const items = [
+    {
+      id: 1,
+      icon: <Dumbbell size={16} />,
+      title: "Premium Gym Membership",
+      subtitle: "3 Months Membership",
+      hsn: "999799",
+      qty: 1,
+      price: 7120.00,
+      amount: 7120.00
+    },
+    {
+      id: 2,
+      icon: <User size={16} />,
+      title: "Personal Training Sessions",
+      subtitle: "12 Sessions",
+      hsn: "999799",
+      qty: 1,
+      price: 4000.00,
+      amount: 4000.00
+    },
+    {
+      id: 3,
+      icon: <Building2 size={16} />,
+      title: "Locker Facility",
+      subtitle: "3 Months",
+      hsn: "999799",
+      qty: 1,
+      price: 1200.00,
+      amount: 1200.00
+    },
+    {
+      id: 4,
+      icon: <FileText size={16} />,
+      title: "Protein Shake",
+      subtitle: "1 Unit",
+      hsn: "21069099",
+      qty: 2,
+      price: 150.00,
+      amount: 300.00
+    }
+  ];
 
   return (
     <div
@@ -65,201 +113,360 @@ export default function InvoiceTemplate({ member }: { member: any }) {
         padding: "0",
       }}
     >
-      {/* Background Watermark */}
-      <div className="absolute top-[30%] left-1/2 -translate-x-1/2 opacity-[0.02] pointer-events-none select-none z-0">
-        <Dumbbell size={500} strokeWidth={1} />
-      </div>
+      {/* --- HEADER SECTION --- */}
+      <div className="relative w-full h-[250px] bg-white">
+        {/* Background shapes mimicking the uploaded design */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+          <svg width="794" height="250" viewBox="0 0 794 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+            {/* Outer silver shadow/border shape */}
+            <path d="M0,0 L794,0 L794,185 L540,185 L500,215 L280,240 L0,185 Z" fill="#cbd5e1" />
+            {/* Inner dark blue shape */}
+            <path d="M0,0 L794,0 L794,180 L542,180 L502,210 L280,235 L0,180 Z" fill="#061b40" />
+            {/* Subtle highlight line on the blue shape */}
+            <path d="M0,178 L280,233 L500,208 L540,178 L794,178" stroke="#1b3a70" strokeWidth="2" fill="none" />
+          </svg>
+        </div>
 
-      <div className="relative z-10 h-full flex flex-col">
-        {/* --- PREMIUM HEADER --- */}
-        <div className="bg-slate-900 text-white px-10 pt-12 pb-10 relative overflow-hidden">
-          {/* Subtle glow / gradient mesh effect */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3"></div>
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-indigo-500/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/3"></div>
-          
-          <div className="relative z-10 flex justify-between items-start">
-            {/* Logo & Brand */}
-            <div className="flex gap-6 items-center">
-              <div className="bg-white/10 p-3 rounded-2xl backdrop-blur-sm border border-white/10 shadow-xl">
+        <div className="relative z-10 flex w-full h-full pt-8 px-10">
+          {/* Left: Logo & Brand */}
+          <div className="flex flex-col items-center w-1/2 mt-2">
+            <div className="flex gap-4 items-center pl-10">
+              <div className="relative w-[130px] h-[150px] flex items-center justify-center">
+                {/* Fallback shield logo if no logo.png */}
+                <div className="absolute inset-0 bg-gradient-to-b from-[#134e9e] to-[#0a2353] border-4 border-slate-300 shadow-xl rounded-b-full" style={{ clipPath: "polygon(50% 100%, 100% 75%, 100% 0, 0 0, 0 75%)" }}></div>
+                <div className="absolute inset-2 border-2 border-slate-400 rounded-b-full" style={{ clipPath: "polygon(50% 100%, 100% 75%, 100% 0, 0 0, 0 75%)" }}></div>
                 <img
                   src="/logo.png"
                   alt="IQ Iron Fitness"
-                  className="w-24 h-24 object-contain"
+                  className="w-24 h-24 object-contain z-10 filter drop-shadow-md brightness-110 contrast-125"
                   crossOrigin="anonymous"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
                 />
+                <div className="z-10 absolute flex flex-col items-center justify-center text-white font-black text-2xl tracking-tighter" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)"}}>
+                  <span className="-mb-1">IQ</span>
+                  <Dumbbell size={24} className="text-white" />
+                </div>
               </div>
-              <div>
-                <h1 className="text-4xl font-black tracking-tight text-white mb-1" style={{ fontFamily: "Impact, sans-serif" }}>
+              <div className="flex flex-col items-center text-center -ml-4 mt-6">
+                <h1 className="text-[34px] font-black tracking-widest text-white leading-none" style={{ fontFamily: "'Arial Black', Impact, sans-serif" }}>
                   {BUSINESS.name}
                 </h1>
-                <p className="text-blue-300 font-medium tracking-[0.15em] text-xs">
-                  {BUSINESS.tagline}
-                </p>
-              </div>
-            </div>
-
-            {/* Document Title & Invoice Info */}
-            <div className="text-right">
-              <div className="inline-block bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2 rounded-full mb-6 shadow-lg">
-                <span className="text-lg font-bold tracking-widest text-white">TAX INVOICE</span>
-              </div>
-              <div className="space-y-1 text-sm text-slate-300">
-                <p className="flex justify-end gap-3 items-center">
-                  <span className="text-slate-400">Invoice No:</span>
-                  <span className="text-white font-semibold">{invoiceNumber}</span>
-                </p>
-                <p className="flex justify-end gap-3 items-center">
-                  <span className="text-slate-400">Date Issued:</span>
-                  <span className="text-white font-semibold">{invoiceDate}</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* --- BODY CONTENT --- */}
-        <div className="px-10 py-10 flex-1 flex flex-col space-y-8">
-          
-          {/* Status Bar */}
-          <div className="flex items-center justify-between bg-slate-50 border border-slate-100 p-5 rounded-2xl shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                <User size={20} />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Billed To</p>
-                <p className="text-lg font-bold text-slate-800">{member.name}</p>
-                <p className="text-sm text-slate-500 mt-0.5">{member.phone || "No phone provided"}</p>
-              </div>
-            </div>
-
-            <div className="w-px h-12 bg-slate-200 mx-4"></div>
-
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
-                <Award size={20} />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Membership</p>
-                <p className="text-base font-bold text-slate-800">{member.membership_type || "Monthly"} Plan</p>
-                <p className="text-sm text-slate-500 mt-0.5">Valid until {member.expiry_date}</p>
-              </div>
-            </div>
-
-            <div className="w-px h-12 bg-slate-200 mx-4"></div>
-
-            <div className="text-right flex flex-col items-end justify-center">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Status</p>
-              <div className={`px-4 py-1.5 rounded-full border text-xs font-bold tracking-wider shadow-sm ${statusBg}`}>
-                {paymentStatus}
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="h-px w-8 bg-blue-400"></div>
+                  <p className="text-blue-300 font-semibold tracking-widest text-[9px] uppercase">
+                    {BUSINESS.tagline}
+                  </p>
+                  <div className="h-px w-8 bg-blue-400"></div>
+                </div>
+                <div className="flex gap-2 mt-2 text-white">
+                  ★ ★ ★
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Line Items Table */}
-          <div className="flex-1">
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <List size={18} className="text-slate-400" /> Payment Breakdown
-            </h3>
+          {/* Right: Tax Invoice Details */}
+          <div className="flex flex-col items-end w-1/2 pr-4 pt-2">
+            <div className="bg-[#1253a6] px-10 py-2 rounded-l-full shadow-lg border-b border-blue-400 -mr-14 pr-16 relative">
+               <span className="text-xl font-bold tracking-widest text-white">TAX INVOICE</span>
+               <div className="absolute right-0 top-0 w-8 h-full bg-[#1253a6]"></div>
+            </div>
             
-            <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                    <th className="py-4 px-6">Description</th>
-                    <th className="py-4 px-6 text-center">Period</th>
-                    <th className="py-4 px-6 text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="text-sm">
-                  <tr className="border-b border-slate-100 last:border-0">
-                    <td className="py-5 px-6">
-                      <p className="font-bold text-slate-800">{member.membership_type || "Monthly"} Membership Fee</p>
-                      <p className="text-slate-500 text-xs mt-1">Base charge for facility access</p>
-                    </td>
-                    <td className="py-5 px-6 text-center text-slate-600">
-                      {member.start_date || "N/A"} <br/><span className="text-slate-400 text-xs">to</span><br/> {member.expiry_date || "N/A"}
-                    </td>
-                    <td className="py-5 px-6 text-right font-semibold text-slate-800">
-                      ₹{total.toLocaleString('en-IN')}
-                    </td>
-                  </tr>
-                  
-                  {member.has_personal_trainer && (
-                    <tr className="border-b border-slate-100 last:border-0 bg-slate-50/50">
-                      <td className="py-4 px-6">
-                        <p className="font-bold text-slate-800">Personal Training ({member.trainer_name})</p>
-                        <p className="text-slate-500 text-xs mt-1">Add-on service</p>
-                      </td>
-                      <td className="py-4 px-6 text-center text-slate-600">-</td>
-                      <td className="py-4 px-6 text-right font-semibold text-slate-800">Included</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Totals Section */}
-            <div className="mt-6 flex justify-end">
-              <div className="w-80 space-y-3">
-                <div className="flex justify-between items-center text-sm text-slate-600 px-4">
-                  <span>Subtotal</span>
-                  <span className="font-semibold">₹{total.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm text-slate-600 px-4">
-                  <span>Discount</span>
-                  <span className="font-semibold">₹0</span>
-                </div>
-                <div className="flex justify-between items-center text-sm text-slate-600 px-4">
-                  <span>Amount Paid</span>
-                  <span className="font-semibold text-emerald-600">- ₹{paid.toLocaleString('en-IN')}</span>
-                </div>
-                
-                <div className="h-px bg-slate-200 my-2"></div>
-                
-                <div className="flex justify-between items-center px-4 py-3 bg-slate-800 text-white rounded-xl shadow-md">
-                  <span className="font-bold tracking-wide">Balance Due</span>
-                  <span className="text-xl font-black tracking-tight">₹{balance.toLocaleString('en-IN')}</span>
-                </div>
+            <div className="mt-8 space-y-3 text-sm text-white">
+              <div className="flex items-center gap-4">
+                <FileText size={16} className="text-blue-300" />
+                <span className="w-20 text-blue-200">Invoice No</span>
+                <span>:</span>
+                <span className="font-bold tracking-wide w-24 text-right">{invoiceNumber}</span>
               </div>
-            </div>
-          </div>
-
-          {/* --- FOOTER --- */}
-          <div className="mt-auto pt-8 border-t border-slate-200">
-            <div className="flex justify-between items-end">
-              <div className="w-1/2 space-y-4">
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Terms & Conditions</h4>
-                  <ul className="text-[10px] text-slate-500 space-y-1 list-disc list-inside">
-                    <li>This invoice is valid for the stated membership period only.</li>
-                    <li>Membership fees are non-transferable and non-refundable.</li>
-                    <li>Please present this document at the front desk if requested.</li>
-                  </ul>
-                </div>
-                <div className="flex items-center gap-2 text-emerald-600 font-medium text-xs bg-emerald-50 w-max px-3 py-1.5 rounded-lg border border-emerald-100 shadow-sm">
-                  <CheckCircle size={14} /> Thank you for choosing IQ IRON FITNESS.
-                </div>
+              <div className="flex items-center gap-4">
+                <CalendarDays size={16} className="text-blue-300" />
+                <span className="w-20 text-blue-200">Date</span>
+                <span>:</span>
+                <span className="font-bold tracking-wide w-24 text-right">{invoiceDate}</span>
               </div>
-              
-              <div className="w-1/2 flex flex-col items-end gap-2 text-[10px] text-slate-500 font-medium">
-                <div className="flex items-center gap-2">
-                  <span>{BUSINESS.phone}</span>
-                  <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center"><Phone size={10} /></div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span>{BUSINESS.email}</span>
-                  <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center"><Mail size={10} /></div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-right">{BUSINESS.addressLine1}, {BUSINESS.addressLine2}</span>
-                  <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center shrink-0"><MapPin size={10} /></div>
-                </div>
+              <div className="flex items-center gap-4">
+                <Clock size={16} className="text-blue-300" />
+                <span className="w-20 text-blue-200">Due Date</span>
+                <span>:</span>
+                <span className="font-bold tracking-wide w-24 text-right">{dueDate}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* --- FROM / BILL TO SECTION --- */}
+      <div className="px-12 py-2 mt-2">
+        <div className="flex justify-between">
+          
+          {/* FROM */}
+          <div className="w-[45%] text-[11px] space-y-1">
+            <h2 className="text-[#1253a6] font-bold text-xs uppercase mb-1">FROM</h2>
+            <h3 className="font-extrabold text-slate-900 text-sm">{BUSINESS.name}</h3>
+            
+            <div className="flex items-start gap-2 pt-1 text-slate-700">
+              <MapPin size={12} className="text-[#1253a6] mt-0.5 shrink-0" />
+              <p className="leading-tight">{BUSINESS.addressLine1}<br/>{BUSINESS.addressLine2}</p>
+            </div>
+            
+            <div className="flex items-center gap-2 pt-1 text-slate-700">
+              <Phone size={12} className="text-[#1253a6] shrink-0" />
+              <p>{BUSINESS.phone}</p>
+            </div>
+            
+            <div className="flex items-center gap-2 text-slate-700">
+              <Mail size={12} className="text-[#1253a6] shrink-0" />
+              <p>{BUSINESS.email}</p>
+            </div>
+            
+            <div className="flex items-center gap-2 text-slate-700">
+              <Globe size={12} className="text-[#1253a6] shrink-0" />
+              <p>{BUSINESS.website}</p>
+            </div>
+            
+            <div className="flex items-center gap-2 pt-1 text-slate-700 font-bold">
+              <Building2 size={12} className="text-[#1253a6] shrink-0" />
+              <p>GSTIN: {BUSINESS.gstin}</p>
+            </div>
+          </div>
+
+          <div className="w-px bg-slate-200"></div>
+
+          {/* BILL TO */}
+          <div className="w-[45%] text-[11px] space-y-1 pl-4">
+            <h2 className="text-[#1253a6] font-bold text-xs uppercase mb-1">BILL TO</h2>
+            <h3 className="font-extrabold text-slate-900 text-sm">{memberName}</h3>
+            
+            <div className="flex items-start gap-2 pt-1 text-slate-700">
+              <MapPin size={12} className="text-[#1253a6] mt-0.5 shrink-0" />
+              <p className="leading-tight">{memberAddress1}<br/>{memberAddress2}</p>
+            </div>
+            
+            <div className="flex items-center gap-2 pt-1 text-slate-700">
+              <Phone size={12} className="text-[#1253a6] shrink-0" />
+              <p>{memberPhone}</p>
+            </div>
+            
+            <div className="flex items-center gap-2 text-slate-700">
+              <Mail size={12} className="text-[#1253a6] shrink-0" />
+              <p>{memberEmail}</p>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      {/* --- TABLE SECTION --- */}
+      <div className="px-10 mt-6">
+        <div className="border border-slate-300 rounded-lg overflow-hidden">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#061b40] text-white text-[10px] font-bold tracking-wider">
+                <th className="py-2.5 px-4 text-center border-r border-slate-600 w-12">#</th>
+                <th className="py-2.5 px-4 border-r border-slate-600">DESCRIPTION</th>
+                <th className="py-2.5 px-4 text-center border-r border-slate-600 w-24">HSN / SAC</th>
+                <th className="py-2.5 px-4 text-center border-r border-slate-600 w-16">QTY</th>
+                <th className="py-2.5 px-4 text-right border-r border-slate-600 w-28">UNIT PRICE (₹)</th>
+                <th className="py-2.5 px-4 text-right w-28">AMOUNT (₹)</th>
+              </tr>
+            </thead>
+            <tbody className="text-[11px]">
+              {items.map((item, idx) => (
+                <tr key={item.id} className="border-b border-dashed border-slate-300 last:border-b-0 bg-slate-50/30">
+                  <td className="py-3.5 px-4 text-center border-r border-dashed border-slate-300 font-semibold text-slate-600">
+                    {idx + 1}
+                  </td>
+                  <td className="py-3.5 px-4 border-r border-dashed border-slate-300">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-[#1253a6] text-white rounded-md flex items-center justify-center shrink-0 shape-hexagon">
+                         {item.icon}
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900">{item.title}</p>
+                        <p className="text-slate-500 text-[10px]">{item.subtitle}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-3.5 px-4 text-center border-r border-dashed border-slate-300 text-slate-600">
+                    {item.hsn}
+                  </td>
+                  <td className="py-3.5 px-4 text-center border-r border-dashed border-slate-300 text-slate-600">
+                    {item.qty}
+                  </td>
+                  <td className="py-3.5 px-4 text-right border-r border-dashed border-slate-300 text-slate-700">
+                    {item.price.toLocaleString('en-IN', {minimumFractionDigits: 2})}
+                  </td>
+                  <td className="py-3.5 px-4 text-right text-slate-900 font-semibold">
+                    {item.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* --- PAYMENT & TOTALS SECTION --- */}
+      <div className="px-10 mt-6 flex justify-between gap-6">
+        
+        {/* PAYMENT METHODS */}
+        <div className="w-[45%] relative mt-3 rounded-xl border border-slate-300 bg-[#f8fafc] p-4 pt-6">
+          <div className="absolute -top-3.5 left-0 bg-[#1253a6] text-white text-[11px] font-bold px-4 py-1 rounded-br-xl">
+            PAYMENT METHODS
+          </div>
+          
+          <div className="flex justify-between h-full">
+            <div className="space-y-4 text-[10px] text-slate-700 w-3/5 pr-2">
+              <div className="flex gap-2">
+                <div className="w-4 h-4 text-[#1253a6] shrink-0 mt-0.5"><QrCode size={14}/></div>
+                <div>
+                  <p className="font-bold text-slate-900">UPI</p>
+                  <p>iqironfitness@upi</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <div className="w-4 h-4 text-[#1253a6] shrink-0 mt-0.5"><Landmark size={14}/></div>
+                <div>
+                  <p className="font-bold text-slate-900">Bank Transfer</p>
+                  <p>IQ Iron Fitness</p>
+                  <p>A/c No: 1234 5678 9012</p>
+                  <p>IFSC: HDFC0001234</p>
+                  <p>HDFC Bank, Kothrud, Pune</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <div className="w-4 h-4 text-[#1253a6] shrink-0 mt-0.5"><CreditCard size={14}/></div>
+                <div>
+                  <p className="font-bold text-slate-900">Card / Net Banking</p>
+                  <p>We accept all major cards and net banking</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="w-2/5 flex flex-col items-center justify-center border-l border-slate-200 pl-4">
+              <p className="text-[10px] font-bold text-[#1253a6] mb-2 uppercase tracking-wide">SCAN TO PAY</p>
+              <div className="bg-white p-2 border border-slate-300 rounded-lg shadow-sm">
+                {/* Fallback to image if react-qr-code fails or is not imported properly */}
+                <div className="w-[90px] h-[90px] bg-white flex items-center justify-center">
+                   <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=upi://pay?pa=iqironfitness@upi" alt="QR Code" crossOrigin="anonymous" />
+                </div>
+              </div>
+              <p className="text-[9px] text-slate-500 mt-2 font-medium">UPI ID: iqironfitness@upi</p>
+            </div>
+          </div>
+        </div>
+
+        {/* TOTALS */}
+        <div className="w-[50%] bg-[#f4f7fb] rounded-xl border border-slate-200 overflow-hidden flex flex-col">
+          <div className="p-4 text-[11px] font-bold text-slate-700 space-y-2">
+            <div className="flex justify-between items-center">
+              <span>SUBTOTAL</span>
+              <span>₹ {subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+            </div>
+            <div className="flex justify-between items-center text-emerald-600">
+              <span>DISCOUNT</span>
+              <span>- ₹ {discount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t border-slate-200">
+              <span>TAXABLE AMOUNT</span>
+              <span>₹ {taxableAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+            </div>
+            <div className="flex justify-between items-center text-[#1253a6]">
+              <span>CGST (9%)</span>
+              <span>₹ {cgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+            </div>
+            <div className="flex justify-between items-center text-[#1253a6]">
+              <span>SGST (9%)</span>
+              <span>₹ {sgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+            </div>
+          </div>
+          
+          <div className="mt-auto">
+            <div className="bg-[#061b40] text-white flex justify-between items-center px-4 py-3">
+              <span className="font-bold text-xs tracking-wider">TOTAL AMOUNT</span>
+              <div className="flex items-center">
+                <span className="text-xl font-light text-slate-400 mr-4">/</span>
+                <span className="text-xl font-bold">₹ {total.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+              </div>
+            </div>
+            <div className="bg-[#eef2f6] px-4 py-2 border-t border-slate-300 text-center">
+              <p className="text-[9px] text-[#1253a6] mb-0.5">Amount In Words:</p>
+              <p className="text-[10px] font-bold text-[#061b40] italic">Fourteen Thousand One Hundred Sixty Rupees Only</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* --- TERMS & SIGNATURE SECTION --- */}
+      <div className="px-10 mt-6 flex justify-between items-end">
+        <div className="w-[45%]">
+          <h4 className="text-[11px] font-bold text-[#1253a6] uppercase tracking-wider mb-2">TERMS & CONDITIONS</h4>
+          <ul className="text-[9px] text-slate-700 space-y-1 list-disc list-inside font-medium">
+            <li>This invoice is computer generated and does not require signature.</li>
+            <li>Payment to be made before the due date to avoid late fees.</li>
+            <li>Membership once purchased is non-refundable and non-transferable.</li>
+            <li>Please carry a valid ID card during all gym visits.</li>
+            <li>For any queries, contact us at {BUSINESS.phone}.</li>
+          </ul>
+        </div>
+        
+        <div className="w-[50%] flex justify-between items-end px-4">
+          <div className="flex flex-col items-center">
+            <div className="w-[80px] h-[80px] rounded-full border-[3px] border-slate-400 flex flex-col items-center justify-center text-slate-500 -rotate-12 opacity-80">
+               <span className="text-[8px] font-bold tracking-widest curve-text">IQ IRON FITNESS</span>
+               <span className="text-xs font-black my-1">PUNE</span>
+               <span className="text-[7px] font-bold tracking-widest">MAHARASHTRA</span>
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-center">
+            {/* Mock signature */}
+            <div className="h-10 w-32 border-b border-slate-400 relative">
+               <svg className="absolute bottom-1 w-full h-8 opacity-80" viewBox="0 0 100 30">
+                  <path d="M10,20 Q30,-10 40,25 T60,10 T80,25" fill="none" stroke="#0f172a" strokeWidth="1.5" />
+                  <path d="M30,22 Q50,0 60,20" fill="none" stroke="#0f172a" strokeWidth="1" />
+                  <line x1="20" y1="28" x2="90" y2="15" stroke="#0f172a" strokeWidth="1" />
+               </svg>
+            </div>
+            <p className="text-[9px] font-bold text-slate-800 mt-2">Authorised Signatory</p>
+            <p className="text-[9px] text-[#1253a6] font-bold">{BUSINESS.name}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* --- FOOTER BANNER --- */}
+      <div className="absolute bottom-0 w-full">
+        <div className="bg-[#12366b] text-slate-300 text-[9px] py-3 px-10 flex justify-between items-center border-b-[3px] border-[#0a1e3f]">
+          <div className="flex items-center gap-1.5">
+            <MapPin size={10} className="text-white shrink-0"/>
+            <span>123, Power House Road,<br/>Kothrud, Pune - 411038</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Phone size={10} className="text-white shrink-0"/>
+            <span>+91 98765 43210</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Mail size={10} className="text-white shrink-0"/>
+            <span>info@iqironfitness.com</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Globe size={10} className="text-white shrink-0"/>
+            <span>www.iqironfitness.com</span>
+          </div>
+        </div>
+        <div className="bg-[#061b40] text-white text-xs font-bold tracking-[0.2em] py-3 flex justify-center items-center gap-4">
+          <Dumbbell size={14} className="text-blue-400" />
+          THANK YOU FOR CHOOSING IQ IRON FITNESS
+          <Dumbbell size={14} className="text-blue-400" />
+        </div>
+      </div>
+
     </div>
   );
 }
