@@ -36,63 +36,23 @@ export default function TablePanel() {
 
   const handleGenerateBill = (member: any) => {
     setSelectedMember(member);
-
-    (async () => {
-      const wrapper = document.getElementById('invoice-wrapper');
-      const element = document.getElementById('invoice-template');
-      if (!wrapper || !element) return;
-
-      // Temporarily bring into view but keep invisible
-      // position absolute and a large width prevents mobile viewports from squishing the element
-      const originalCssText = wrapper.style.cssText;
-      wrapper.style.cssText = 'position: absolute; top: -9999px; left: -9999px; min-width: 1000px; display: block; overflow: visible;';
-
-      try {
-        // html2canvas-pro is a drop-in replacement for html2canvas that
-        // understands modern CSS color functions (oklch/oklab/color-mix),
-        // which Tailwind v4 uses by default. Plain html2canvas throws on
-        // those and silently aborts most of the render.
-        const html2canvas = (await import('html2canvas-pro')).default;
-        const { jsPDF } = await import('jspdf');
-
-        await waitForNextPaint();
-        await waitForImages(element);
-
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#ffffff',
-          scrollY: 0
-        });
-
-        const imgData = canvas.toDataURL('image/jpeg', 1.0);
-
-        // Perfect 1-page fit
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'px',
-          format: [canvas.width / 2, canvas.height / 2]
-        });
-
-        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width / 2, canvas.height / 2);
-        pdf.save(`Receipt_${member.name.replace(/\s+/g, '_')}.pdf`);
-
-        const phone = member.phone ? member.phone.replace(/[^0-9]/g, '') : '';
-        const msg = `Hi ${member.name}, please find attached the receipt for your gym membership fee. Thank you!`;
-        if (phone) {
-          const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-          window.open(url, "_blank");
-        } else {
-          alert('Bill downloaded. No phone number to send WhatsApp message.');
-        }
-      } catch (err) {
-        console.error("PDF generation failed:", err);
-        alert('Bill generation failed — check the console for details.');
-      } finally {
-        // Always restore, even if generation failed
-        wrapper.style.cssText = originalCssText;
-      }
-    })();
+    
+    // Open the print view in a new tab
+    window.open(`/print/${member.id}`, "_blank");
+    
+    // Trigger WhatsApp chat
+    const phone = member.phone ? member.phone.replace(/[^0-9]/g, '') : '';
+    const msg = `Hi ${member.name}, please find attached the receipt for your gym membership fee. Thank you!`;
+    if (phone) {
+      setTimeout(() => {
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+        window.open(url, "_blank");
+      }, 500); // Small delay to let the print tab open first
+    } else {
+      setTimeout(() => {
+        alert('Print tab opened. No phone number to send WhatsApp message.');
+      }, 500);
+    }
   };
 
   const filteredMembers = useMemo(() => {

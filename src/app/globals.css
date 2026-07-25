@@ -1289,3 +1289,34 @@ dialog::backdrop { backdrop-filter: none !important; }
     padding: 1.1rem 1.2rem;
   }
 }
+
+/* ─── Button Mobile Responsiveness ─────────────────────────────────────────── */
+@media (hover: none) {
+  /* Disable sticky hovers on touch devices */
+  .btn:hover, .btn-primary:hover, .btn-secondary:hover, .btn-ghost:hover, .btn-danger:hover, .btn-icon:hover {
+    transform: none !important;
+    background: inherit; 
+    /* We can't perfectly reset background to inherit for all without breaking, 
+       but transform is the main offender. */
+  }
+}
+/* Add snappy active states for all buttons */
+.btn:active, .btn-primary:active, .btn-secondary:active, .btn-ghost:active, .btn-danger:active {
+  transform: scale(0.96) !important;
+  opacity: 0.9;
+}
+.btn-icon:active {
+  transform: scale(0.85) !important;
+  opacity: 0.8;
+}
+
+/* ─── Print Styles ─────────────────────────────────────────────────────────── */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  @page {
+    margin: 0;
+  }
+}
