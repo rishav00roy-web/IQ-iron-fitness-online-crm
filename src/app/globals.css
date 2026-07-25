@@ -1221,3 +1221,71 @@ dialog::backdrop { backdrop-filter: none !important; }
     padding-bottom: env(safe-area-inset-bottom, 20px); /* iPhone home indicator safe area */
   }
 }
+
+/* ─── Premium Mobile Optimization (iPhone 15 Pro Max, OnePlus 12R) ─── */
+@media (max-width: 450px) {
+  .app {
+    padding: 8px;
+    gap: 12px;
+  }
+  
+  .app-header {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .header-actions .btn {
+    font-size: 0.75rem;
+    padding: 0.45rem 0.8rem;
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .metric-label {
+    font-size: 0.6rem;
+  }
+  
+  .metric-sub {
+    font-size: 0.65rem;
+  }
+  
+  .grid-toolbar {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .tabs .tab {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.72rem;
+  }
+  
+  .data-table {
+    min-width: 700px;
+    font-size: 0.75rem;
+  }
+  
+  .data-table td, .data-table thead th {
+    padding: 0.6rem 0.8rem;
+  }
+  
+  dialog {
+    width: 98vw !important;
+    max-height: 95vh !important;
+    border-radius: 12px !important;
+  }
+
+  .dialog-header {
+    padding: 1.1rem 1.2rem;
+  }
+  
+  .dialog-body {
+    padding: 1.1rem 1.2rem;
+  }
+
+  .dialog-actions {
+    padding: 1.1rem 1.2rem;
+  }
+}

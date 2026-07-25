@@ -12,42 +12,67 @@ export default function TablePanel() {
     setIsBroadcastOpen, setIsDeleteOpen
   } = useCRM();
 
+  // Wait for two animation frames (lets React commit + browser paint the
+  // new member into InvoiceTemplate) instead of guessing with a fixed delay.
+  const waitForNextPaint = () =>
+    new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    });
+
+  // Wait for every <img> inside the target element to finish loading (or
+  // fail) so the signature image can't get cut off by a race condition.
+  const waitForImages = (element: HTMLElement) => {
+    const imgs = Array.from(element.querySelectorAll('img'));
+    return Promise.all(
+      imgs.map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          img.addEventListener('load', () => resolve(), { once: true });
+          img.addEventListener('error', () => resolve(), { once: true });
+        });
+      })
+    );
+  };
+
   const handleGenerateBill = (member: any) => {
     setSelectedMember(member);
-    
-    // Slight delay to allow React to render InvoiceTemplate with the new member
-    setTimeout(async () => {
-      try {
-        const html2canvas = (await import('html2canvas')).default;
-        const { jsPDF } = await import('jspdf');
-        
-        const wrapper = document.getElementById('invoice-wrapper');
-        const element = document.getElementById('invoice-template');
-        if (!wrapper || !element) return;
-        
-        // Temporarily bring into view but keep invisible
-        const originalCssText = wrapper.style.cssText;
-        wrapper.style.cssText = 'position: fixed; top: 0; left: -9999px;';
 
-        const canvas = await html2canvas(element, { 
-          scale: 2, 
+    (async () => {
+      const wrapper = document.getElementById('invoice-wrapper');
+      const element = document.getElementById('invoice-template');
+      if (!wrapper || !element) return;
+
+      // Temporarily bring into view but keep invisible
+      const originalCssText = wrapper.style.cssText;
+      wrapper.style.cssText = 'position: fixed; top: 0; left: -9999px; display: block;';
+
+      try {
+        // html2canvas-pro is a drop-in replacement for html2canvas that
+        // understands modern CSS color functions (oklch/oklab/color-mix),
+        // which Tailwind v4 uses by default. Plain html2canvas throws on
+        // those and silently aborts most of the render.
+        const html2canvas = (await import('html2canvas-pro')).default;
+        const { jsPDF } = await import('jspdf');
+
+        await waitForNextPaint();
+        await waitForImages(element);
+
+        const canvas = await html2canvas(element, {
+          scale: 2,
           useCORS: true,
           backgroundColor: '#ffffff',
           scrollY: 0
         });
-        
-        // Restore immediately
-        wrapper.style.cssText = originalCssText;
 
         const imgData = canvas.toDataURL('image/jpeg', 1.0);
-        
+
         // Perfect 1-page fit
         const pdf = new jsPDF({
           orientation: 'landscape',
           unit: 'px',
           format: [canvas.width / 2, canvas.height / 2]
         });
-        
+
         pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width / 2, canvas.height / 2);
         pdf.save(`Receipt_${member.name.replace(/\s+/g, '_')}.pdf`);
 
@@ -61,8 +86,12 @@ export default function TablePanel() {
         }
       } catch (err) {
         console.error("PDF generation failed:", err);
+        alert('Bill generation failed — check the console for details.');
+      } finally {
+        // Always restore, even if generation failed
+        wrapper.style.cssText = originalCssText;
       }
-    }, 200);
+    })();
   };
 
   const filteredMembers = useMemo(() => {

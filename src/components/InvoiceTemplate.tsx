@@ -8,7 +8,6 @@ import {
   User,
   Award,
   List,
-  PenTool,
   CheckCircle,
   Dumbbell,
 } from "lucide-react";
@@ -16,6 +15,16 @@ import {
 export default function InvoiceTemplate({ member }: { member: any }) {
   const [invoiceNumber, setInvoiceNumber] = useState("");
   const [invoiceDate, setInvoiceDate] = useState("");
+
+  // TODO(antigravity): fill in real business contact details.
+  // Left blank intentionally — mock data is used for the member/fee
+  // fields below, but these should come from real gym info.
+  const BUSINESS = {
+    phone: "",
+    addressLine1: "",
+    addressLine2: "",
+    website: "",
+  };
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -86,48 +95,14 @@ export default function InvoiceTemplate({ member }: { member: any }) {
 
           <div className="relative z-10 flex items-center justify-between gap-6">
             {/* Logo Section */}
-            <div className="flex-shrink-0 relative">
-              <div
-                style={{
-                  background: "linear-gradient(to bottom, #e2e8f0, #94a3b8)",
-                }}
-                className="w-32 h-40 p-[3px] rounded-t-lg rounded-b-[40px] shadow-lg flex flex-col items-center justify-center text-center"
-              >
-                <div
-                  style={{ backgroundColor: "#0a2357" }}
-                  className="w-full h-full rounded-t-md rounded-b-[38px] flex flex-col items-center justify-center p-2"
-                >
-                  <div style={{ color: "#93c5fd" }} className=" mb-1">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      className="w-10 h-10"
-                    >
-                      <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"
-                        className="fill-[#0f2d6b]"
-                      />
-                      <path
-                        d="M9.5 8c0 0-1.5 1-1.5 3s1.5 3 1.5 3 M14.5 8c0 0 1.5 1 1.5 3s-1.5 3-1.5 3"
-                        strokeLinecap="round"
-                      />
-                      <circle cx="12" cy="11" r="2" fill="#93c5fd" />
-                    </svg>
-                  </div>
-                  <div className="font-black text-4xl text-white tracking-tighter leading-none mb-1 shadow-sm">
-                    IQ
-                  </div>
-                  <div className="w-full h-[1px] bg-slate-400/50 my-1"></div>
-                  <div className="text-[9px] font-bold tracking-widest text-slate-200">
-                    IQ IRON FITNESS
-                  </div>
-                  <div className="text-[6px] tracking-wider text-slate-400 mt-0.5">
-                    WHERE INTELLIGENCE MEETS IRON
-                  </div>
-                </div>
-              </div>
+            <div className="flex-shrink-0">
+              <img
+                src="/logo.png"
+                alt="IQ Iron Fitness logo"
+                className="drop-shadow-lg"
+                style={{ width: "128px", height: "auto", maxWidth: "100%" }}
+                crossOrigin="anonymous"
+              />
             </div>
 
             {/* Center Title */}
@@ -163,23 +138,23 @@ export default function InvoiceTemplate({ member }: { member: any }) {
             {/* Contact Details */}
             <div className="flex-shrink-0 text-sm space-y-3 font-medium text-slate-200 text-right">
               <div className="flex items-center justify-end gap-3">
-                <p>+91 98765 43210</p>
+                <p>{BUSINESS.phone}</p>
                 <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5">
                   <Phone className="w-4 h-4 text-white" />
                 </div>
               </div>
               <div className="flex items-center justify-end gap-3">
                 <p className="text-right max-w-[150px] leading-tight">
-                  123, Strength Avenue
+                  {BUSINESS.addressLine1}
                   <br />
-                  Fit City, India - 110001
+                  {BUSINESS.addressLine2}
                 </p>
                 <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5">
                   <MapPin className="w-4 h-4 text-white" />
                 </div>
               </div>
               <div className="flex items-center justify-end gap-3">
-                <p>www.iqironfitness.com</p>
+                <p>{BUSINESS.website}</p>
                 <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5">
                   <Globe className="w-4 h-4 text-white" />
                 </div>
@@ -485,35 +460,6 @@ export default function InvoiceTemplate({ member }: { member: any }) {
               </div>
               <div className="absolute bottom-2 right-4 opacity-10">
                 <Dumbbell className="w-12 h-12" />
-              </div>
-            </div>
-
-            {/* Signature */}
-            <div className="flex-1 border border-[#e6eaf3] rounded-lg bg-white overflow-hidden shadow-sm flex flex-col">
-              <div className="bg-slate-50 px-4 py-2 border-b border-[#e6eaf3] flex items-center gap-2">
-                <PenTool style={{ color: "#0d2a6a" }} className="w-4 h-4" />
-                <h4
-                  style={{ color: "#0d2a6a" }}
-                  className="font-bold text-sm uppercase tracking-wider"
-                >
-                  Authorized Signature
-                </h4>
-              </div>
-              <div className="p-4 flex-1 flex flex-col items-center justify-end">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Signature_of_John_Hancock.svg"
-                  alt="Signature"
-                  className="h-10 opacity-70 mb-2 grayscale"
-                  crossOrigin="anonymous"
-                />
-                <div className="w-3/4 border-t border-slate-300 pt-2 text-center">
-                  <p
-                    style={{ color: "#0d2a6a" }}
-                    className="text-[10px] font-bold tracking-widest uppercase"
-                  >
-                    For IQ IRON FITNESS
-                  </p>
-                </div>
               </div>
             </div>
 
