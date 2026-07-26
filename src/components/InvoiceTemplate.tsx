@@ -113,12 +113,12 @@ export default function InvoiceTemplate({ member }: { member: any }) {
                <span className="font-bold text-[11px] text-slate-700 tracking-wider uppercase">Member Details</span>
             </div>
             <div className="p-6 space-y-4">
-               <div className="flex text-sm">
-                  <span className="w-32 text-slate-500 font-medium">Name</span>
-                  <span className="text-slate-900 font-semibold truncate flex-1">{memberName}</span>
+               <div className="flex text-sm gap-3">
+                  <span className="w-20 shrink-0 text-slate-500 font-medium">Name</span>
+                  <span className="text-slate-900 font-semibold break-words flex-1">{memberName}</span>
                </div>
-               <div className="flex text-sm">
-                  <span className="w-32 text-slate-500 font-medium">Phone</span>
+               <div className="flex text-sm gap-3">
+                  <span className="w-20 shrink-0 text-slate-500 font-medium">Phone</span>
                   <span className="text-slate-900 font-semibold truncate flex-1 tabular-nums">{memberPhone}</span>
                </div>
             </div>
@@ -131,12 +131,12 @@ export default function InvoiceTemplate({ member }: { member: any }) {
                <span className="font-bold text-[11px] text-slate-700 tracking-wider uppercase">Membership Details</span>
             </div>
             <div className="p-6 space-y-4">
-               <div className="flex text-sm">
-                  <span className="w-32 text-slate-500 font-medium">Type</span>
+               <div className="flex text-sm gap-3">
+                  <span className="w-20 shrink-0 text-slate-500 font-medium">Type</span>
                   <span className="text-slate-900 font-semibold truncate flex-1 capitalize">{member?.membership_type || "Monthly"}</span>
                </div>
-               <div className="flex text-sm">
-                  <span className="w-32 text-slate-500 font-medium">Validity</span>
+               <div className="flex text-sm gap-3">
+                  <span className="w-20 shrink-0 text-slate-500 font-medium">Validity</span>
                   <span className="text-slate-900 font-semibold truncate flex-1 tabular-nums">
                      {new Date(member?.start_date || "2026-07-25").toLocaleDateString("en-GB")} - {new Date(member?.expiry_date || "2026-08-25").toLocaleDateString("en-GB")}
                   </span>
@@ -183,9 +183,9 @@ export default function InvoiceTemplate({ member }: { member: any }) {
                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount Paid</span>
                      <span className="text-base font-semibold text-slate-900 tabular-nums">₹ {paidAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
-                  <div className="flex justify-between items-center py-5 px-6 bg-slate-900 text-white mt-auto">
-                     <span className="text-xs font-bold uppercase tracking-wider">Balance Due</span>
-                     <span className="text-xl font-bold tabular-nums">₹ {pendingAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  <div className="flex justify-between items-center py-6 px-6 bg-slate-900 text-white mt-auto">
+                     <span className="text-sm font-bold uppercase tracking-widest text-slate-300">Balance Due</span>
+                     <span className="text-3xl font-black tabular-nums tracking-tight">₹ {pendingAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                </div>
             </div>
@@ -193,7 +193,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       </div>
 
       {/* NOTES & TERMS */}
-      <div className="px-8 mt-8 flex gap-8">
+      <div className="px-8 mt-12 flex gap-12">
          <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
                <FileText size={14} className="text-slate-400" />
