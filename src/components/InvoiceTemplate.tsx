@@ -53,7 +53,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
                   src="/logo.png" 
                   alt="IQ Iron Fitness Logo" 
                   className="w-full h-auto object-contain"
-                  style={{ imageRendering: "high-quality", WebkitPrintColorAdjust: "exact" }}
+                  style={{ imageRendering: "crisp-edges", WebkitPrintColorAdjust: "exact" as any }}
                />
             </div>
             <div className="flex flex-col">
