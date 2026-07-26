@@ -53,14 +53,34 @@ export default function InvoiceTemplate({ member }: { member: any }) {
   const memberAddress1 = "45, Green Park Avenue,";
   const memberAddress2 = "Kolkata - 700019, West Bengal, India";
 
-  const total = member.total_fee || 14160;
-  // Calculate reverse breakdown for realistic mock
-  // In a real scenario, this comes from backend
-  const cgst = total * 0.09;
-  const sgst = total * 0.09;
-  const taxableAmount = total - cgst - sgst;
-  const subtotal = taxableAmount;
+  const total = member.total_fee || 10000;
   const discount = 0; // Or whatever dynamic discount
+  
+  // Calculate reverse breakdown for realistic mock
+  const isInterState = !memberAddress2.toLowerCase().includes("maharashtra");
+  const taxableAmount = total / 1.18;
+  const taxAmount = total - taxableAmount;
+  
+  const cgst = isInterState ? 0 : taxAmount / 2;
+  const sgst = isInterState ? 0 : taxAmount / 2;
+  const igst = isInterState ? taxAmount : 0;
+  const subtotal = taxableAmount;
+
+  const numberToWords = (num: number) => {
+    const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+    const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    if ((num = num.toString()).length > 9) return 'Overflow';
+    const n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+    if (!n) return ''; 
+    let str = '';
+    str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+    str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+    str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+    str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+    str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'Rupees Only' : 'Rupees Only';
+    return str.trim();
+  };
+  const amountInWordsText = numberToWords(Math.round(total));
 
   return (
     <div
@@ -127,9 +147,9 @@ export default function InvoiceTemplate({ member }: { member: any }) {
 
           {/* Right: Tax Invoice Details */}
           <div className="flex flex-col items-end w-1/2 pr-4 pt-2">
-            <div className="px-10 py-2 rounded-l-full shadow-lg -mr-14 pr-16 relative" style={{ backgroundColor: "#1253a6", borderBottom: "1px solid #60a5fa" }}>
-               <span className="text-xl font-bold tracking-widest text-white">TAX INVOICE</span>
+            <div className="px-10 py-2 rounded-l-full shadow-lg -mr-14 pr-16 relative flex items-center" style={{ backgroundColor: "#1253a6", borderBottom: "1px solid #60a5fa" }}>
                <div className="absolute right-0 top-0 w-8 h-full" style={{ backgroundColor: "#1253a6" }}></div>
+               <span className="text-xl font-bold tracking-widest text-white relative z-10">TAX INVOICE</span>
             </div>
             
             <div className="mt-8 space-y-3 text-sm text-white">
@@ -218,8 +238,8 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       </div>
 
       {/* --- TABLE SECTION --- */}
-      <div className="px-10 mt-6">
-        <div className="border border-slate-300 rounded-lg overflow-hidden">
+      <div className="px-10 mt-6 mb-8 relative z-10">
+        <div className="border border-slate-300 rounded-lg overflow-hidden bg-white">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="text-white text-[10px] font-bold tracking-wider" style={{ backgroundColor: "#061b40" }}>
@@ -239,7 +259,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
                 </td>
                 <td className="py-3.5 px-4 border-r border-dashed border-slate-300">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 text-white rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: "#1253a6" }}>
+                    <div className="w-8 h-8 text-white rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "#1253a6" }}>
                         <Dumbbell size={16} />
                     </div>
                     <div>
@@ -255,10 +275,10 @@ export default function InvoiceTemplate({ member }: { member: any }) {
                   1
                 </td>
                 <td className="py-3.5 px-4 text-right border-r border-dashed border-slate-300 text-slate-700">
-                  {total.toLocaleString('en-IN', {minimumFractionDigits: 2})}
+                  {taxableAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}
                 </td>
                 <td className="py-3.5 px-4 text-right text-slate-900 font-semibold">
-                  {total.toLocaleString('en-IN', {minimumFractionDigits: 2})}
+                  {taxableAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}
                 </td>
               </tr>
 
@@ -270,7 +290,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
                   </td>
                   <td className="py-3.5 px-4 border-r border-dashed border-slate-300">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 text-white rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: "#1253a6" }}>
+                      <div className="w-8 h-8 text-white rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "#1253a6" }}>
                           <User size={16} />
                       </div>
                       <div>
@@ -364,27 +384,35 @@ export default function InvoiceTemplate({ member }: { member: any }) {
               <span>TAXABLE AMOUNT</span>
               <span>₹ {taxableAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
             </div>
-            <div className="flex justify-between items-center" style={{ color: "#1253a6" }}>
-              <span>CGST (9%)</span>
-              <span>₹ {cgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
-            </div>
-            <div className="flex justify-between items-center" style={{ color: "#1253a6" }}>
-              <span>SGST (9%)</span>
-              <span>₹ {sgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
-            </div>
+            {igst > 0 ? (
+              <div className="flex justify-between items-center" style={{ color: "#1253a6" }}>
+                <span>IGST (18%)</span>
+                <span>₹ {igst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+              </div>
+            ) : (
+              <>
+                <div className="flex justify-between items-center" style={{ color: "#1253a6" }}>
+                  <span>CGST (9%)</span>
+                  <span>₹ {cgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                </div>
+                <div className="flex justify-between items-center" style={{ color: "#1253a6" }}>
+                  <span>SGST (9%)</span>
+                  <span>₹ {sgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                </div>
+              </>
+            )}
           </div>
           
           <div className="mt-auto">
             <div className="text-white flex justify-between items-center px-4 py-3" style={{ backgroundColor: "#061b40" }}>
               <span className="font-bold text-xs tracking-wider">TOTAL AMOUNT</span>
               <div className="flex items-center">
-                <span className="text-xl font-light text-slate-400 mr-4">/</span>
                 <span className="text-xl font-bold">₹ {total.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
               </div>
             </div>
             <div className="px-4 py-2 border-t border-slate-300 text-center" style={{ backgroundColor: "#eef2f6" }}>
               <p className="text-[9px] mb-0.5" style={{ color: "#1253a6" }}>Amount In Words:</p>
-              <p className="text-[10px] font-bold italic" style={{ color: "#061b40" }}>Fourteen Thousand One Hundred Sixty Rupees Only</p>
+              <p className="text-[10px] font-bold italic" style={{ color: "#061b40" }}>{amountInWordsText}</p>
             </div>
           </div>
         </div>
@@ -392,7 +420,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       </div>
 
       {/* --- TERMS & SIGNATURE SECTION --- */}
-      <div className="px-10 mt-6 flex justify-between items-end">
+      <div className="px-10 mt-10 flex justify-between items-end relative z-10">
         <div className="w-[45%]">
           <h4 className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "#1253a6" }}>TERMS & CONDITIONS</h4>
           <ul className="text-[9px] text-slate-700 space-y-1 list-disc list-inside font-medium">
@@ -406,10 +434,18 @@ export default function InvoiceTemplate({ member }: { member: any }) {
         
         <div className="w-[50%] flex justify-between items-end px-4">
           <div className="flex flex-col items-center">
-            <div className="w-[80px] h-[80px] rounded-full border-[3px] border-slate-400 flex flex-col items-center justify-center text-slate-500 -rotate-12 opacity-80">
-               <span className="text-[8px] font-bold tracking-widest curve-text">IQ IRON FITNESS</span>
-               <span className="text-xs font-black my-1">PUNE</span>
-               <span className="text-[7px] font-bold tracking-widest">MAHARASHTRA</span>
+            <div className="w-[85px] h-[85px] relative flex items-center justify-center -rotate-12 opacity-80">
+               <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-slate-500">
+                 <path id="curve" fill="transparent" d="M 15,50 A 35,35 0 1,1 85,50 A 35,35 0 1,1 15,50" />
+                 <text width="100" className="text-[12px] font-bold uppercase tracking-widest" fill="currentColor">
+                   <textPath href="#curve" startOffset="50%" textAnchor="middle">IQ IRON FITNESS</textPath>
+                 </text>
+                 <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="3" />
+               </svg>
+               <div className="flex flex-col items-center justify-center text-slate-500 mt-2">
+                 <span className="text-[11px] font-black leading-none">PUNE</span>
+                 <span className="text-[6px] font-bold tracking-widest mt-0.5">MAHARASHTRA</span>
+               </div>
             </div>
           </div>
           
