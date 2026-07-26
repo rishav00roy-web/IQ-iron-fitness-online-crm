@@ -44,13 +44,13 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       }}
     >
       {/* HEADER */}
-      <div className="relative w-full bg-[#0a224a] px-8 py-8 flex items-center justify-between border-b-[8px] border-slate-900">
+      <div className="relative w-full bg-[#0a224a] px-12 py-10 flex items-center justify-between border-b-[8px] border-slate-900">
          {/* Diagonal shape overlay - kept minimal for brand feel without muddying UI */}
          <div className="absolute top-0 right-0 w-1/2 h-full bg-[#123675] z-0" style={{ clipPath: "polygon(20% 0, 100% 0, 100% 100%, 0% 100%)" }}></div>
 
          {/* Logo */}
-         <div className="relative z-10 flex items-center gap-6">
-            <div className="w-[120px] shrink-0 bg-white p-2 rounded-xl shadow-lg border border-slate-200">
+         <div className="relative z-10 flex items-center gap-8">
+            <div className="w-32 h-auto shrink-0 bg-white p-3 rounded-xl shadow-lg border border-slate-200">
                <img 
                   src="/logo.png" 
                   alt="IQ Iron Fitness Logo" 
@@ -85,8 +85,8 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       </div>
 
       {/* INVOICE METADATA */}
-      <div className="px-8 py-6 flex justify-between items-center bg-slate-50 border-b border-slate-200">
-         <div className="flex gap-12">
+      <div className="px-12 py-6 flex justify-between items-center bg-slate-50 border-b border-slate-200">
+         <div className="flex gap-16">
             <div>
                <p className="text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Invoice No.</p>
                <p className="text-lg font-semibold text-slate-900 leading-none tabular-nums">{invoiceNumber}</p>
@@ -97,15 +97,15 @@ export default function InvoiceTemplate({ member }: { member: any }) {
             </div>
          </div>
          <div className="text-right">
-            <p className="text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Payment Status</p>
-            <div className="bg-slate-900 text-white font-semibold px-6 py-1.5 rounded text-xs inline-block tracking-widest">
+            <p className="text-[10px] font-bold text-emerald-700 tracking-wider uppercase mb-1">Payment Status</p>
+            <div className="bg-emerald-600 text-white font-semibold px-6 py-1.5 rounded text-xs inline-block tracking-widest">
                PAID
             </div>
          </div>
       </div>
 
       {/* DETAILS SECTION */}
-      <div className="px-8 flex gap-8 mt-8">
+      <div className="px-12 flex gap-8 mt-10">
          {/* Member Details */}
          <div className="flex-1 rounded-xl border border-slate-200 overflow-hidden bg-white">
             <div className="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center gap-3">
@@ -146,7 +146,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       </div>
 
       {/* FEE BREAKDOWN & TOTALS */}
-      <div className="px-8 mt-8">
+      <div className="px-12 mt-10">
          <div className="rounded-xl border border-slate-200 overflow-hidden bg-white flex flex-col">
             <div className="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center gap-3">
                <FileSpreadsheet size={14} className="text-slate-500" />
@@ -193,7 +193,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       </div>
 
       {/* NOTES & TERMS */}
-      <div className="px-8 mt-12 flex gap-12">
+      <div className="px-12 mt-12 flex gap-12">
          <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
                <FileText size={14} className="text-slate-400" />
