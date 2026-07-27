@@ -71,7 +71,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       }}
     >
       {/* Page Border (Solid Blue - No inner silver pin-strip) */}
-      <div className="w-full h-full border-[10px] border-[#0b337c] rounded-sm relative flex flex-col justify-between overflow-hidden bg-white p-5">
+      <div className="w-full h-full border-[10px] border-[#0b337c] rounded-sm relative flex flex-col justify-between overflow-hidden bg-white" style={{ padding: '24px' }}>
         
         {/* Subtle Watermark background logo */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0 select-none">
@@ -151,7 +151,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
         {/* ADDRESS ROW (FROM & BILL TO - Styled as Card Panels) */}
         <div className="grid grid-cols-2 gap-6 my-2 text-[12px] font-body shrink-0 z-10">
           {/* FROM CARD */}
-          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md p-4 space-y-1.5 shadow-sm">
+          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md space-y-1.5 shadow-sm" style={{ padding: '20px' }}>
             <p className="text-[9px] font-bold text-[#0b337c] tracking-wider uppercase font-display border-b border-slate-200/80 pb-0.5">From</p>
             <h3 className="font-bold text-slate-900 font-display text-sm">IQ IRON FITNESS</h3>
             <p className="text-slate-600 leading-relaxed">
@@ -167,7 +167,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
           </div>
 
           {/* BILL TO CARD */}
-          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md p-4 space-y-1.5 shadow-sm">
+          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md space-y-1.5 shadow-sm" style={{ padding: '20px' }}>
             <p className="text-[9px] font-bold text-[#0b337c] tracking-wider uppercase font-display border-b border-slate-200/80 pb-0.5">Bill To</p>
             <h3 className="font-bold text-slate-900 font-display text-sm capitalize">{memberName}</h3>
             <p className="text-slate-600 leading-relaxed">
