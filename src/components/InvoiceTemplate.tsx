@@ -36,7 +36,8 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       id="invoice-template"
       className="font-sans bg-white mx-auto relative overflow-hidden text-slate-800"
       style={{
-        width: "794px",
+        width: "100%",
+        maxWidth: "794px",
         minHeight: "1123px",
         padding: "0",
         WebkitPrintColorAdjust: "exact",

@@ -91,10 +91,10 @@ export default function PrintInvoicePage() {
   }
 
   return (
-    <div className="bg-slate-100 min-h-screen print:bg-white flex flex-col items-center p-4 print:p-0 overflow-x-auto">
+    <div className="bg-slate-100 min-h-screen print:bg-white flex flex-col items-center p-4 print:p-0 overflow-x-auto print:block">
       {/* Mobile scaling wrapper (only scales on screen, prints at 100%) */}
-      <div className="origin-top transform scale-[0.5] sm:scale-[0.7] md:scale-[0.8] lg:scale-100 print:scale-100 transition-transform">
-        <div className="w-[794px] min-h-[1123px] bg-white shadow-2xl print:shadow-none">
+      <div className="origin-top transform scale-[0.5] sm:scale-[0.7] md:scale-[0.8] lg:scale-100 print:scale-100 transition-transform print:transform-none">
+        <div className="w-[794px] max-w-full min-h-[1123px] bg-white shadow-2xl print:shadow-none print:w-full print:min-h-0">
           <InvoiceTemplate member={member} />
         </div>
       </div>
