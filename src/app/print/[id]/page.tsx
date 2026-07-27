@@ -6,8 +6,7 @@ import { supabase } from "@/lib/supabase";
 import InvoiceTemplate from "@/components/InvoiceTemplate";
 
 export default function PrintInvoicePage() {
-  const params = useParams();
-  const id = params?.id as string;
+  const { id } = useParams();
   const [member, setMember] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +46,7 @@ export default function PrintInvoicePage() {
             renewal_streak: 3, created_at: "2026-01-15T14:20:00Z"
           }
         ];
-        const m = mockMembers.find((m) => m.id === id) || mockMembers[0];
+        const m = mockMembers.find((m) => m.id === id);
         setMember(m);
         setLoading(false);
         return;
@@ -69,7 +68,7 @@ export default function PrintInvoicePage() {
       }
     }
 
-    if (id || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    if (id) {
       fetchMember();
     }
   }, [id]);
@@ -92,13 +91,7 @@ export default function PrintInvoicePage() {
   }
 
   return (
-    <div 
-      className="bg-slate-100 min-h-screen print:bg-white flex flex-col items-center p-4 print:p-0 overflow-x-auto print:block"
-      style={{
-        WebkitPrintColorAdjust: "exact",
-        printColorAdjust: "exact",
-      }}
-    >
+    <div className="bg-slate-100 min-h-screen print:bg-white flex flex-col items-center p-4 print:p-0 overflow-x-auto print:block">
       {/* Mobile scaling wrapper (only scales on screen, prints at 100%) */}
       <div className="origin-top transform scale-[0.5] sm:scale-[0.7] md:scale-[0.8] lg:scale-100 print:scale-100 transition-transform print:transform-none">
         <div className="w-[794px] max-w-full min-h-[1123px] bg-white shadow-2xl print:shadow-none print:w-full print:min-h-0">
