@@ -186,18 +186,18 @@ export default function InvoiceTemplate({ member }: { member: any }) {
           <table className="w-full border-collapse border border-slate-200 text-[13px] table-fixed">
             <thead>
               <tr className="bg-[#0b337c] text-white text-left font-display">
-                <th className="py-2.5 px-2 border border-slate-300 w-[6%] text-center">#</th>
-                <th className="py-2.5 px-3 border border-slate-300 w-[44%]">DESCRIPTION</th>
-                <th className="py-2.5 px-2 border border-slate-300 w-[15%] text-center">HSN / SAC</th>
-                <th className="py-2.5 px-2 border border-slate-300 w-[10%] text-center">QTY</th>
-                <th className="py-2.5 px-3 border border-slate-300 w-[12%] text-right">UNIT PRICE (₹)</th>
-                <th className="py-2.5 px-3 border border-slate-300 w-[13%] text-right">AMOUNT (₹)</th>
+                <th className="py-2.5 px-2 border border-slate-300 w-[6%] text-center" style={{ padding: '10px 8px' }}>#</th>
+                <th className="py-2.5 px-3 border border-slate-300 w-[44%]" style={{ padding: '10px 12px' }}>DESCRIPTION</th>
+                <th className="py-2.5 px-2 border border-slate-300 w-[15%] text-center" style={{ padding: '10px 8px' }}>HSN / SAC</th>
+                <th className="py-2.5 px-2 border border-slate-300 w-[10%] text-center" style={{ padding: '10px 8px' }}>QTY</th>
+                <th className="py-2.5 px-3 border border-slate-300 w-[12%] text-right" style={{ padding: '10px 12px' }}>UNIT PRICE (₹)</th>
+                <th className="py-2.5 px-3 border border-slate-300 w-[13%] text-right" style={{ padding: '10px 12px' }}>AMOUNT (₹)</th>
               </tr>
             </thead>
             <tbody className="text-slate-700 font-medium">
               <tr className="bg-white">
-                <td className="py-5 px-2 border border-slate-200 text-center font-mono align-top">1</td>
-                <td className="py-5 px-3 border border-slate-200 align-top">
+                <td className="py-5 px-2 border border-slate-200 text-center font-mono align-top" style={{ padding: '20px 8px' }}>1</td>
+                <td className="py-5 px-3 border border-slate-200 align-top" style={{ padding: '20px 12px' }}>
                   <span className="font-bold text-slate-950 block text-[14px]">Premium Gym Membership</span>
                   <span className="text-slate-500 text-[11px] capitalize block mt-0.5 mb-2">
                     Plan type: {member?.membership_type || "Monthly"}
@@ -209,12 +209,12 @@ export default function InvoiceTemplate({ member }: { member: any }) {
                     <li>1x Fitness consultation & assessment</li>
                   </ul>
                 </td>
-                <td className="py-5 px-2 border border-slate-200 text-center font-mono align-top">999799</td>
-                <td className="py-5 px-2 border border-slate-200 text-center font-mono align-top">1</td>
-                <td className="py-5 px-3 border border-slate-200 text-right font-mono align-top">
+                <td className="py-5 px-2 border border-slate-200 text-center font-mono align-top" style={{ padding: '20px 8px' }}>999799</td>
+                <td className="py-5 px-2 border border-slate-200 text-center font-mono align-top" style={{ padding: '20px 8px' }}>1</td>
+                <td className="py-5 px-3 border border-slate-200 text-right font-mono align-top" style={{ padding: '20px 12px' }}>
                   {taxableAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </td>
-                <td className="py-5 px-3 border border-slate-200 text-right font-mono align-top">
+                <td className="py-5 px-3 border border-slate-200 text-right font-mono align-top" style={{ padding: '20px 12px' }}>
                   {taxableAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </td>
               </tr>
@@ -225,7 +225,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
         {/* LOWER SECTION (PAYMENT METHODS & TOTALS - Elevated vertical spacing) */}
         <div className="grid grid-cols-2 gap-6 my-4 shrink-0 z-10">
           {/* PAYMENT METHODS BLOCK */}
-          <div className="border border-slate-200 rounded-md p-4 bg-slate-50/50 flex flex-col justify-between shadow-sm">
+          <div className="border border-slate-200 rounded-md p-4 bg-slate-50/50 flex flex-col justify-between shadow-sm" style={{ padding: '16px' }}>
             <div>
               <h4 className="font-display font-bold text-[11px] uppercase tracking-wider text-[#0b337c] mb-2.5 pb-1 border-b border-slate-200">
                 Payment Methods
@@ -245,7 +245,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
             </div>
 
             {/* Styled QR Code Box */}
-            <div className="flex items-center gap-3 mt-3 bg-white p-2 border border-slate-200 rounded-md w-fit shadow-inner">
+            <div className="flex items-center gap-3 mt-3 bg-white p-2 border border-slate-200 rounded-md w-fit shadow-inner" style={{ padding: '8px' }}>
               <svg viewBox="0 0 100 100" className="w-12 h-12 text-slate-800 shrink-0">
                 <rect width="100" height="100" fill="white" />
                 <path d="M0,0 h30 v10 h-20 v20 h-10 z M70,0 h30 v30 h-10 v-20 h-20 z M0,70 h10 v20 h20 v10 h-30 z M90,90 h-20 v10 h30 v-30 h-10 z" fill="currentColor" />
@@ -285,7 +285,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
             </div>
             
             {/* Total Amount Ribbon */}
-            <div className="bg-[#0b337c] text-white py-2.5 px-4 rounded-sm flex justify-between items-center shadow-md relative overflow-hidden">
+            <div className="bg-[#0b337c] text-white py-2.5 px-4 rounded-sm flex justify-between items-center shadow-md relative overflow-hidden" style={{ padding: '10px 16px' }}>
               <div className="absolute top-0 right-0 w-24 h-full bg-white/10 skew-x-12 transform origin-top-right"></div>
               <span className="font-display font-bold text-[12px] tracking-widest uppercase">Total Amount</span>
               <span className="font-mono text-lg font-black">
