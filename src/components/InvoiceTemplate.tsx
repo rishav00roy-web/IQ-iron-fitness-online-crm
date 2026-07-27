@@ -45,7 +45,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       }}
     >
       {/* HEADER */}
-      <div className="relative w-full bg-[#0a224a] px-8 py-10 flex items-center justify-between border-b-[8px] border-slate-900">
+      <div className="relative w-full bg-[#0a224a] px-16 py-12 flex items-center justify-between border-b-[8px] border-slate-900">
          {/* Diagonal shape overlay - kept minimal for brand feel without muddying UI */}
          <div className="absolute top-0 right-0 w-1/2 h-full bg-[#123675] z-0" style={{ clipPath: "polygon(20% 0, 100% 0, 100% 100%, 0% 100%)" }}></div>
 
@@ -86,8 +86,8 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       </div>
 
       {/* INVOICE METADATA */}
-      <div className="px-8 py-6 flex justify-between items-center bg-slate-50 border-b border-slate-200">
-         <div className="flex gap-12">
+      <div className="px-16 py-8 flex justify-between items-center bg-slate-50 border-b border-slate-200">
+         <div className="flex gap-16">
             <div>
                <p className="text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Invoice No.</p>
                <p className="text-lg font-semibold text-slate-900 leading-none tabular-nums">{invoiceNumber}</p>
@@ -106,14 +106,14 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       </div>
 
       {/* DETAILS SECTION */}
-      <div className="px-8 flex gap-6 mt-10">
+      <div className="px-16 flex gap-10 mt-16">
          {/* Member Details */}
-         <div className="flex-1 rounded-md border border-slate-200 overflow-hidden bg-white">
-            <div className="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center gap-3">
+         <div className="flex-1 rounded-md border border-slate-200 overflow-hidden bg-white shadow-sm">
+            <div className="bg-slate-50 border-b border-slate-200 px-8 py-4 flex items-center gap-3">
                <User size={14} className="text-slate-500" />
                <span className="font-bold text-[11px] text-slate-700 tracking-wider uppercase">Member Details</span>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-8 space-y-6">
                <div className="flex text-sm gap-3">
                   <span className="w-20 shrink-0 text-slate-500 font-medium">Name</span>
                   <span className="text-slate-900 font-semibold break-words flex-1">{memberName}</span>
@@ -126,12 +126,12 @@ export default function InvoiceTemplate({ member }: { member: any }) {
          </div>
          
          {/* Membership Details */}
-         <div className="flex-1 rounded-md border border-slate-200 overflow-hidden bg-white">
-            <div className="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center gap-3">
+         <div className="flex-1 rounded-md border border-slate-200 overflow-hidden bg-white shadow-sm">
+            <div className="bg-slate-50 border-b border-slate-200 px-8 py-4 flex items-center gap-3">
                <Medal size={14} className="text-slate-500" />
                <span className="font-bold text-[11px] text-slate-700 tracking-wider uppercase">Membership Details</span>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-8 space-y-6">
                <div className="flex text-sm gap-3">
                   <span className="w-20 shrink-0 text-slate-500 font-medium">Type</span>
                   <span className="text-slate-900 font-semibold truncate flex-1 capitalize">{member?.membership_type || "Monthly"}</span>
@@ -147,9 +147,9 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       </div>
 
       {/* FEE BREAKDOWN & TOTALS */}
-      <div className="px-8 mt-10">
-         <div className="rounded-md border border-slate-200 overflow-hidden bg-white flex flex-col">
-            <div className="bg-slate-50 border-b border-slate-200 px-6 py-3 flex items-center gap-3">
+      <div className="px-16 mt-16">
+         <div className="rounded-md border border-slate-200 overflow-hidden bg-white flex flex-col shadow-sm">
+            <div className="bg-slate-50 border-b border-slate-200 px-8 py-4 flex items-center gap-3">
                <FileSpreadsheet size={14} className="text-slate-500" />
                <span className="font-bold text-[11px] text-slate-700 tracking-wider uppercase">Fee Breakdown</span>
             </div>
@@ -157,18 +157,18 @@ export default function InvoiceTemplate({ member }: { member: any }) {
             <table className="w-full text-sm">
                <thead>
                   <tr className="border-b border-slate-200 bg-white">
-                     <th className="text-left py-4 px-6 font-semibold text-slate-500">Description</th>
-                     <th className="text-right py-4 px-6 font-semibold text-slate-500">Amount</th>
+                     <th className="text-left py-6 px-8 font-semibold text-slate-500">Description</th>
+                     <th className="text-right py-6 px-8 font-semibold text-slate-500">Amount</th>
                   </tr>
                </thead>
                <tbody className="text-slate-700">
                   <tr className="border-b border-slate-100">
-                     <td className="py-4 px-6">Membership Fee ({member?.membership_type || "Monthly"})</td>
-                     <td className="py-4 px-6 text-right tabular-nums">₹ {totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                     <td className="py-6 px-8">Membership Fee ({member?.membership_type || "Monthly"})</td>
+                     <td className="py-6 px-8 text-right tabular-nums">₹ {totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                   </tr>
                   <tr className="border-b border-slate-100">
-                     <td className="py-4 px-6">Discount Applied</td>
-                     <td className="py-4 px-6 text-right tabular-nums">₹ {discount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                     <td className="py-6 px-8">Discount Applied</td>
+                     <td className="py-6 px-8 text-right tabular-nums">₹ {discount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                   </tr>
                </tbody>
             </table>
@@ -176,15 +176,15 @@ export default function InvoiceTemplate({ member }: { member: any }) {
             {/* TOTALS SUMMARY */}
             <div className="bg-slate-50 flex justify-end flex-1">
                <div className="w-[50%] border-l border-slate-200 bg-white flex flex-col">
-                  <div className="flex justify-between items-center py-4 px-6 border-b border-slate-100">
+                  <div className="flex justify-between items-center py-6 px-8 border-b border-slate-100">
                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total</span>
                      <span className="text-base font-semibold text-slate-900 tabular-nums">₹ {totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
-                  <div className="flex justify-between items-center py-4 px-6 border-b border-slate-100">
+                  <div className="flex justify-between items-center py-6 px-8 border-b border-slate-100">
                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount Paid</span>
                      <span className="text-base font-semibold text-slate-900 tabular-nums">₹ {paidAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
-                  <div className="flex justify-between items-center py-6 px-6 bg-slate-900 text-white mt-auto">
+                  <div className="flex justify-between items-center py-8 px-8 bg-slate-900 text-white mt-auto">
                      <span className="text-sm font-bold uppercase tracking-widest text-slate-300">Balance Due</span>
                      <span className="text-3xl font-black tabular-nums tracking-tight">₹ {pendingAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
@@ -194,7 +194,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       </div>
 
       {/* NOTES & TERMS */}
-      <div className="px-8 mt-12 flex gap-10">
+      <div className="px-16 mt-16 flex gap-16">
          <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
                <FileText size={14} className="text-slate-400" />
@@ -218,7 +218,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
       </div>
 
       {/* FOOTER */}
-      <div className="absolute bottom-0 left-0 w-full bg-slate-900 border-t-4 border-[#0a224a] py-6 flex flex-col items-center justify-center">
+      <div className="absolute bottom-0 left-0 w-full bg-slate-900 border-t-4 border-[#0a224a] py-8 flex flex-col items-center justify-center">
          <p className="text-white text-[10px] tracking-wide font-semibold mb-1 uppercase" style={{ textRendering: "geometricPrecision" }}>
             Thank You For Being A Part Of
          </p>
