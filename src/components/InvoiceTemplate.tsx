@@ -1,236 +1,269 @@
 import React, { useState, useEffect } from "react";
-import {
-  Phone,
-  Globe,
-  FileText,
-  User,
-  Medal,
-  FileSpreadsheet,
-  CheckCircle2,
-} from "lucide-react";
+import { Dumbbell, Mail, MapPin, Phone } from "lucide-react";
 
 export default function InvoiceTemplate({ member }: { member: any }) {
-  const [invoiceNumber, setInvoiceNumber] = useState("INV-85027");
-  const [invoiceDate, setInvoiceDate] = useState("25 July 2026");
+  const [invoiceNumber, setInvoiceNumber] = useState("INV-00000");
+  const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString());
 
   useEffect(() => {
     if (member) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setInvoiceNumber(`INV-${Math.floor(Math.random() * 100000).toString().padStart(5, "0")}`);
       const today = new Date();
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setInvoiceDate(today.toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" }));
+      setInvoiceDate(today.toISOString());
     }
   }, [member]);
 
-  const memberName = member?.name || "Rishav Roy";
-  const memberPhone = member?.phone || "6001914771";
+  const currency = (n: number) =>
+    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(
+      n || 0
+    );
+
+  const formatDate = (d?: string) =>
+    d
+      ? new Date(d).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+      : "—";
+
+  // Data mapping from real Member DB type
+  const fullName = member?.name ?? "—";
+  const phone = member?.phone ?? "—";
+  const memberCode = member?.id ? member.id.slice(0, 8).toUpperCase() : "—";
+  const planName = member?.membership_type ?? "—";
+  const planStart = member?.start_date;
+  const planEnd = member?.expiry_date;
   
-  const totalAmount = member?.total_fee || 8000;
+  const totalFee = member?.total_fee ?? 0;
+  const pendingAmount = member?.pending_amount ?? 0;
+  const paidAmount = totalFee - pendingAmount;
+  
   const discount = 0;
-  const paidAmount = totalAmount; 
-  const pendingAmount = totalAmount - paidAmount;
+  
+  const lineItems = [
+    {
+      label: `Membership Fee (${planName})`,
+      qty: "1",
+      rate: totalFee,
+      amount: totalFee
+    }
+  ];
+
+  const subtotal = lineItems.reduce((sum, item) => sum + (item.amount || 0), 0);
+  const total = Math.max(subtotal - discount, 0);
+  
+  const status = pendingAmount > 0 ? "due" : "paid";
+
+  const STATUS_STYLES: Record<string, { label: string; bg: string; text: string; border: string }> = {
+    paid: { label: "PAID", bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-300" },
+    due: { label: "DUE", bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-300" },
+    overdue: { label: "OVERDUE", bg: "bg-red-50", text: "text-red-700", border: "border-red-400" },
+  };
+
+  const statusStyle = STATUS_STYLES[status];
 
   return (
-    <div
-      id="invoice-template"
-      className="font-sans bg-white mx-auto relative overflow-hidden text-slate-800"
-      style={{
-        width: "100%",
-        maxWidth: "794px",
-        minHeight: "1123px",
-        padding: "0",
-        WebkitPrintColorAdjust: "exact",
-        printColorAdjust: "exact"
-      }}
-    >
-      {/* HEADER */}
-      <div className="relative w-full bg-[#0a224a] px-16 py-12 flex items-center justify-between border-b-[8px] border-slate-900">
-         {/* Diagonal shape overlay - kept minimal for brand feel without muddying UI */}
-         <div className="absolute top-0 right-0 w-1/2 h-full bg-[#123675] z-0" style={{ clipPath: "polygon(20% 0, 100% 0, 100% 100%, 0% 100%)" }}></div>
+    <div className="w-full max-w-[794px] min-h-[1123px] mx-auto bg-white text-slate-900 flex flex-col" style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}>
+      {/* Google Fonts — inline per existing pattern (flagged: move to next/font later) */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
+        .font-display { font-family: 'Oswald', sans-serif; }
+        .font-body { font-family: 'Work Sans', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+      `}</style>
 
-         {/* Logo */}
-         <div className="relative z-10 flex items-center gap-8">
-            <div className="w-32 h-auto shrink-0 bg-white p-3 rounded-md shadow-lg border border-slate-200">
-               <img 
-                  src="/logo.png" 
-                  alt="IQ Iron Fitness Logo" 
-                  className="w-full h-auto object-contain"
-                  style={{ imageRendering: "crisp-edges", WebkitPrintColorAdjust: "exact" as any }}
-               />
-            </div>
-            <div className="flex flex-col">
-                <h1 className="text-3xl font-bold text-white tracking-wide">
-                  IQ IRON FITNESS
-                </h1>
-                <p className="text-white/90 text-xs tracking-wider uppercase mt-1">Where Intelligence Meets Iron</p>
-            </div>
-         </div>
+      {/* ───────────────────────── HEADER ───────────────────────── */}
+      <div className="relative bg-gradient-to-r from-[#031d4f] via-[#0b337c] to-[#031d4f] px-10 pt-8 pb-14 overflow-hidden">
+        {/* chrome edge accents echoing the shield logo */}
+        <div className="absolute left-0 bottom-0 w-24 h-24 bg-white/10 rotate-45 -translate-x-12 translate-y-12" />
+        <div className="absolute right-0 top-0 w-32 h-32 bg-white/5 -rotate-45 translate-x-16 -translate-y-16" />
 
-         {/* Header Info / Contact */}
-         <div className="relative z-10 flex flex-col gap-3 justify-center items-end">
-            <div className="bg-white/10 text-white px-4 py-1.5 font-bold text-xs rounded uppercase tracking-widest border border-white/20">
-               PAYMENT INVOICE
-            </div>
-            <div className="flex gap-4 mt-2">
-               <div className="flex items-center gap-2 text-white/90 text-xs">
-                  <Phone size={12} />
-                  <span>+91 98765 43210</span>
-               </div>
-               <div className="flex items-center gap-2 text-white/90 text-xs">
-                  <Globe size={12} />
-                  <span>iqironfitness.com</span>
-               </div>
-            </div>
-         </div>
-      </div>
-
-      {/* INVOICE METADATA */}
-      <div className="px-16 py-8 flex justify-between items-center bg-slate-50 border-b border-slate-200">
-         <div className="flex gap-16">
-            <div>
-               <p className="text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Invoice No.</p>
-               <p className="text-lg font-semibold text-slate-900 leading-none tabular-nums">{invoiceNumber}</p>
+        <div className="relative z-10 flex items-start justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-md bg-gradient-to-br from-slate-200 via-white to-slate-400 flex items-center justify-center shadow-lg border border-white/40">
+              <img 
+                 src="/logo.png" 
+                 alt="Logo" 
+                 className="w-12 h-12 object-contain"
+              />
             </div>
             <div>
-               <p className="text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Invoice Date</p>
-               <p className="text-lg font-semibold text-slate-900 leading-none">{invoiceDate}</p>
+              <h1 className="font-display text-2xl font-bold text-white tracking-wide leading-none">
+                IQ IRON FITNESS
+              </h1>
+              <p className="font-body text-[10px] text-blue-200 tracking-[0.2em] uppercase mt-1">
+                Where Intelligence Meets Iron
+              </p>
             </div>
-         </div>
-         <div className="text-right">
-            <p className="text-[10px] font-bold text-emerald-700 tracking-wider uppercase mb-1">Payment Status</p>
-            <div className="bg-emerald-600 text-white font-semibold px-6 py-1.5 rounded text-xs inline-block tracking-widest">
-               PAID
-            </div>
-         </div>
-      </div>
+          </div>
 
-      {/* DETAILS SECTION */}
-      <div className="px-16 flex gap-10 mt-16">
-         {/* Member Details */}
-         <div className="flex-1 rounded-md border border-slate-200 overflow-hidden bg-white shadow-sm">
-            <div className="bg-slate-50 border-b border-slate-200 px-8 py-4 flex items-center gap-3">
-               <User size={14} className="text-slate-500" />
-               <span className="font-bold text-[11px] text-slate-700 tracking-wider uppercase">Member Details</span>
-            </div>
-            <div className="p-8 space-y-6">
-               <div className="flex text-sm gap-3">
-                  <span className="w-20 shrink-0 text-slate-500 font-medium">Name</span>
-                  <span className="text-slate-900 font-semibold break-words flex-1">{memberName}</span>
-               </div>
-               <div className="flex text-sm gap-3">
-                  <span className="w-20 shrink-0 text-slate-500 font-medium">Phone</span>
-                  <span className="text-slate-900 font-semibold truncate flex-1 tabular-nums">{memberPhone}</span>
-               </div>
-            </div>
-         </div>
-         
-         {/* Membership Details */}
-         <div className="flex-1 rounded-md border border-slate-200 overflow-hidden bg-white shadow-sm">
-            <div className="bg-slate-50 border-b border-slate-200 px-8 py-4 flex items-center gap-3">
-               <Medal size={14} className="text-slate-500" />
-               <span className="font-bold text-[11px] text-slate-700 tracking-wider uppercase">Membership Details</span>
-            </div>
-            <div className="p-8 space-y-6">
-               <div className="flex text-sm gap-3">
-                  <span className="w-20 shrink-0 text-slate-500 font-medium">Type</span>
-                  <span className="text-slate-900 font-semibold truncate flex-1 capitalize">{member?.membership_type || "Monthly"}</span>
-               </div>
-               <div className="flex text-sm gap-3">
-                  <span className="w-20 shrink-0 text-slate-500 font-medium">Validity</span>
-                  <span className="text-slate-900 font-semibold truncate flex-1 tabular-nums">
-                     {new Date(member?.start_date || "2026-07-25").toLocaleDateString("en-GB")} - {new Date(member?.expiry_date || "2026-08-25").toLocaleDateString("en-GB")}
-                  </span>
-               </div>
-            </div>
-         </div>
-      </div>
-
-      {/* FEE BREAKDOWN & TOTALS */}
-      <div className="px-16 mt-16">
-         <div className="rounded-md border border-slate-200 overflow-hidden bg-white flex flex-col shadow-sm">
-            <div className="bg-slate-50 border-b border-slate-200 px-8 py-4 flex items-center gap-3">
-               <FileSpreadsheet size={14} className="text-slate-500" />
-               <span className="font-bold text-[11px] text-slate-700 tracking-wider uppercase">Fee Breakdown</span>
-            </div>
-            
-            <table className="w-full text-sm">
-               <thead>
-                  <tr className="border-b border-slate-200 bg-white">
-                     <th className="text-left py-6 px-8 font-semibold text-slate-500">Description</th>
-                     <th className="text-right py-6 px-8 font-semibold text-slate-500">Amount</th>
-                  </tr>
-               </thead>
-               <tbody className="text-slate-700">
-                  <tr className="border-b border-slate-100">
-                     <td className="py-6 px-8">Membership Fee ({member?.membership_type || "Monthly"})</td>
-                     <td className="py-6 px-8 text-right tabular-nums">₹ {totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                  </tr>
-                  <tr className="border-b border-slate-100">
-                     <td className="py-6 px-8">Discount Applied</td>
-                     <td className="py-6 px-8 text-right tabular-nums">₹ {discount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                  </tr>
-               </tbody>
-            </table>
-
-            {/* TOTALS SUMMARY */}
-            <div className="bg-slate-50 flex justify-end flex-1">
-               <div className="w-[50%] border-l border-slate-200 bg-white flex flex-col">
-                  <div className="flex justify-between items-center py-6 px-8 border-b border-slate-100">
-                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total</span>
-                     <span className="text-base font-semibold text-slate-900 tabular-nums">₹ {totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-6 px-8 border-b border-slate-100">
-                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount Paid</span>
-                     <span className="text-base font-semibold text-slate-900 tabular-nums">₹ {paidAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-8 px-8 bg-slate-900 text-white mt-auto">
-                     <span className="text-sm font-bold uppercase tracking-widest text-slate-300">Balance Due</span>
-                     <span className="text-3xl font-black tabular-nums tracking-tight">₹ {pendingAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
-
-      {/* NOTES & TERMS */}
-      <div className="px-16 mt-16 flex gap-16">
-         <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-               <FileText size={14} className="text-slate-400" />
-               <span className="font-bold text-[10px] tracking-wider text-slate-500 uppercase">Notes</span>
-            </div>
-            <p className="text-xs text-slate-600 leading-relaxed max-w-sm">
-               Thank you for choosing IQ IRON FITNESS. Keep pushing, keep growing! Please keep this invoice for your records.
+          <div className="text-right">
+            <p className="font-display text-white text-lg tracking-[0.3em] uppercase mb-1">
+              Invoice
             </p>
-         </div>
-         <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-               <CheckCircle2 size={14} className="text-slate-400" />
-               <span className="font-bold text-[10px] tracking-wider text-slate-500 uppercase">Terms & Conditions</span>
-            </div>
-            <ul className="text-xs text-slate-600 leading-relaxed list-disc list-inside">
-               <li>Valid only for the stated membership period.</li>
-               <li>Membership is strictly non-transferable & non-refundable.</li>
-               <li>Management reserves the right of admission.</li>
-            </ul>
-         </div>
-      </div>
-
-      {/* FOOTER */}
-      <div className="absolute bottom-0 left-0 w-full bg-slate-900 border-t-4 border-[#0a224a] py-8 flex flex-col items-center justify-center">
-         <p className="text-white text-[10px] tracking-wide font-semibold mb-1 uppercase" style={{ textRendering: "geometricPrecision" }}>
-            Thank You For Being A Part Of
-         </p>
-         <div className="flex items-center gap-3">
-            <span className="text-white text-[10px]">★</span>
-            <p className="text-white text-sm font-bold tracking-wide" style={{ textRendering: "geometricPrecision" }}>
-               IQ IRON FITNESS FAMILY
+            <p className="font-mono text-blue-200 text-xs">
+              {invoiceNumber}
             </p>
-            <span className="text-white text-[10px]">★</span>
-         </div>
+          </div>
+        </div>
       </div>
 
+      {/* diagonal chrome divider cut, matching the shield's silver edge */}
+      <svg
+        className="w-full -mt-6 relative z-20"
+        viewBox="0 0 794 24"
+        preserveAspectRatio="none"
+        style={{ height: 24 }}
+      >
+        <polygon points="0,24 794,0 794,24" fill="#ffffff" />
+      </svg>
+
+      {/* ───────────────────────── BODY ───────────────────────── */}
+      <div className="flex-1 px-10 py-8 font-body">
+        {/* status + dates row */}
+        <div className="flex items-center justify-between mb-8">
+          <span
+            className={`inline-block px-4 py-1 rounded-full border text-xs font-bold tracking-wider ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
+          >
+            {statusStyle.label}
+          </span>
+          <div className="text-right text-xs text-slate-500 space-y-0.5">
+            <p>
+              <span className="text-slate-400">Issued:</span>{" "}
+              <span className="text-slate-700 font-medium">{formatDate(invoiceDate)}</span>
+            </p>
+          </div>
+        </div>
+
+        {/* bill-to / plan info */}
+        <div className="grid grid-cols-2 gap-8 mb-8">
+          <div>
+            <p className="font-display text-[11px] tracking-[0.15em] text-[#0b337c] uppercase mb-2 border-b border-slate-200 pb-1">
+              Billed To
+            </p>
+            <p className="font-semibold text-slate-900">{fullName}</p>
+            <p className="text-sm text-slate-500">Member ID: {memberCode}</p>
+            <p className="text-sm text-slate-500">{phone}</p>
+          </div>
+          <div>
+            <p className="font-display text-[11px] tracking-[0.15em] text-[#0b337c] uppercase mb-2 border-b border-slate-200 pb-1">
+              Membership Plan
+            </p>
+            <p className="font-semibold text-slate-900 capitalize">{planName}</p>
+            <p className="text-sm text-slate-500">
+              {formatDate(planStart)} – {formatDate(planEnd)}
+            </p>
+          </div>
+        </div>
+
+        {/* line items table */}
+        <table className="w-full text-sm mb-4">
+          <thead>
+            <tr className="bg-[#0b337c]">
+              <th className="text-left font-display text-[11px] tracking-wider text-white uppercase py-2 px-3 rounded-l">
+                Description
+              </th>
+              <th className="text-center font-display text-[11px] tracking-wider text-white uppercase py-2 px-3">
+                Qty
+              </th>
+              <th className="text-right font-display text-[11px] tracking-wider text-white uppercase py-2 px-3">
+                Rate
+              </th>
+              <th className="text-right font-display text-[11px] tracking-wider text-white uppercase py-2 px-3 rounded-r">
+                Amount
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {lineItems.length === 0 && (
+              <tr>
+                <td colSpan={4} className="text-center text-slate-400 py-6 text-sm">
+                  No line items
+                </td>
+              </tr>
+            )}
+            {lineItems.map((item, i) => (
+              <tr key={i} className="border-b border-slate-100">
+                <td className="py-2.5 px-3 text-slate-700">{item.label}</td>
+                <td className="py-2.5 px-3 text-center text-slate-500">{item.qty}</td>
+                <td className="py-2.5 px-3 text-right font-mono text-slate-500">
+                  {currency(item.rate)}
+                </td>
+                <td className="py-2.5 px-3 text-right font-mono text-slate-800">
+                  {currency(item.amount)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* totals */}
+        <div className="flex justify-end mb-10">
+          <div className="w-64 space-y-1.5">
+            <div className="flex justify-between text-sm text-slate-500">
+               <span>Total Fee</span>
+               <span className="font-mono">{currency(subtotal)}</span>
+            </div>
+            <div className="flex justify-between text-sm text-slate-500">
+               <span>Amount Paid</span>
+               <span className="font-mono">{currency(paidAmount)}</span>
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t-2 border-[#0b337c] mt-2">
+              <span className="font-display text-sm uppercase tracking-wide text-[#0b337c]">
+                Balance Due
+              </span>
+              <span className="font-mono text-lg font-semibold text-slate-900">
+                {currency(pendingAmount)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* terms */}
+        <div className="mt-auto pt-16">
+          <p className="font-display text-[11px] tracking-[0.15em] text-[#0b337c] uppercase mb-2 border-b border-slate-200 pb-1">
+            Terms &amp; Conditions
+          </p>
+          <ul className="list-disc list-inside text-xs text-slate-500 space-y-1">
+            <li>Membership is non-transferable and non-refundable.</li>
+            <li>Please carry this invoice for verification.</li>
+            <li>For any queries, contact our front desk.</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* ───────────────────────── FOOTER ───────────────────────── */}
+      <div className="bg-gradient-to-r from-[#031d4f] via-[#0b337c] to-[#031d4f] py-4 border-t-[4px] border-slate-300 relative overflow-hidden">
+        <div className="absolute left-0 bottom-0 w-24 h-24 bg-white/10 rotate-45 transform -translate-x-12 translate-y-12" />
+        <div className="absolute right-0 top-0 w-32 h-32 bg-white/5 -rotate-45 transform translate-x-16 -translate-y-16" />
+        <div className="relative z-10 text-center flex flex-col items-center justify-center">
+          <p className="text-[10px] font-bold text-blue-200 tracking-[0.2em] uppercase mb-1">
+            Thank you for being a part of
+          </p>
+          <div className="flex items-center gap-4">
+            <div className="flex gap-1">
+              <span className="text-white text-xs">★</span>
+              <span className="text-white text-xs">★</span>
+            </div>
+            <h2 className="text-lg font-black text-white tracking-widest">
+              IQ IRON FITNESS FAMILY!
+            </h2>
+            <div className="flex gap-1">
+              <span className="text-white text-xs">★</span>
+              <span className="text-white text-xs">★</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 mt-2 text-[10px] text-blue-200 justify-center">
+            <span className="flex items-center gap-1">
+              <Phone className="w-3 h-3" /> +91 98765 43210
+            </span>
+            <span className="flex items-center gap-1">
+              <Mail className="w-3 h-3" /> iqironfitness.com
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
