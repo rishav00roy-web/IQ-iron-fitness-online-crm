@@ -12,8 +12,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,        // Allow pinch-zoom for accessibility
+  userScalable: true,
+  viewportFit: "cover",  // Required for env(safe-area-inset-*) on iOS notch devices
   themeColor: "#0a0d15",
 };
 

@@ -111,16 +111,16 @@ export default function Metrics() {
           <div className="metric-sub" id="m-dues-sub">{stats.pendingCount} members pending</div>
         </div>
         <div className="metric-card --birthday js-metric-tab" data-tab="birthdays" style={{ cursor: 'pointer' }} title="View Birthday members" onClick={() => setActiveTab('birthdays')}>
-<div className="metric-top">
-<span className="metric-label">Birthdays</span>
-<div className="metric-icon --birthday">
-<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"></path><path d="M4 16h16"></path><path d="M10 9V5a2 2 0 0 1 4 0v4"></path><circle cx="12" cy="3" r="1"></circle></svg>
-</div>
-</div>
-<div className="metric-value" id="m-bday">{stats.birthdays}</div>
-<div className="metric-sub" id="m-bday-sub">Today</div>
-</div>
-</section>
+          <div className="metric-top">
+            <span className="metric-label">Birthdays</span>
+            <div className="metric-icon --birthday">
+              <svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"></path><path d="M4 16h16"></path><path d="M10 9V5a2 2 0 0 1 4 0v4"></path><circle cx="12" cy="3" r="1"></circle></svg>
+            </div>
+          </div>
+          <div className="metric-value" id="m-bday">{stats.birthdays}</div>
+          <div className="metric-sub" id="m-bday-sub">Today</div>
+        </div>
+      </section>
     </>
   );
 }

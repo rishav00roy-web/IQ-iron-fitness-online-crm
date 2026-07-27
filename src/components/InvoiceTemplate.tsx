@@ -47,16 +47,19 @@ export default function InvoiceTemplate({ member }: { member: any }) {
     }
   }, [member]);
 
-  const memberName = member?.name || "rishav";
-  const memberPhone = member?.phone || "6001914771";
+  const memberName = member?.name || "Member Name";
+  const memberPhone = member?.phone || "N/A";
   
-  const totalAmount = member?.total_fee || 10000;
+  const totalAmount = member?.total_fee || 0;
   
   // GST Calculations (18% GST split into 9% CGST and 9% SGST)
   const taxableAmount = totalAmount / 1.18;
   const cgst = taxableAmount * 0.09;
   const sgst = taxableAmount * 0.09;
   const subtotal = taxableAmount;
+  
+  const pendingAmount = member?.pending_amount || 0;
+  const paidAmount = totalAmount - pendingAmount;
 
   return (
     <div
@@ -171,12 +174,19 @@ export default function InvoiceTemplate({ member }: { member: any }) {
             <p className="text-[9px] font-bold text-[#0b337c] tracking-wider uppercase font-display border-b border-slate-200/80 pb-0.5">Bill To</p>
             <h3 className="font-bold text-slate-900 font-display text-sm capitalize">{memberName}</h3>
             <p className="text-slate-600 leading-relaxed">
-              45, Green Park Avenue,<br />
-              Kolkata - 700019, West Bengal, India
+              {member?.address ? (
+                <>
+                  {member.address.split('\n').map((line: string, i: number) => (
+                    <React.Fragment key={i}>{line}<br/></React.Fragment>
+                  ))}
+                </>
+              ) : (
+                "Address not provided"
+              )}
             </p>
             <div className="flex flex-col gap-0.5 text-slate-500 pt-1 font-mono text-[10px]">
               <span>Ph: +91 {memberPhone}</span>
-              <span>Email: rishavroy@email.com</span>
+              {member?.email && <span>Email: {member.email}</span>}
             </div>
           </div>
         </div>
@@ -292,9 +302,20 @@ export default function InvoiceTemplate({ member }: { member: any }) {
                 {formatCurrency(totalAmount)}
               </span>
             </div>
+            
+            <div className="flex justify-between py-1 border-b border-slate-200 text-slate-700 font-bold mt-2">
+              <span>PAID AMOUNT</span>
+              <span className="font-mono text-green-700">{formatCurrency(paidAmount)}</span>
+            </div>
+            {pendingAmount > 0 && (
+              <div className="flex justify-between py-1 border-b border-slate-200 text-slate-700 font-bold">
+                <span>PENDING BALANCE</span>
+                <span className="font-mono text-orange-600">{formatCurrency(pendingAmount)}</span>
+              </div>
+            )}
 
             {/* Amount in words */}
-            <div className="text-[10px] text-slate-500 italic mt-1 leading-snug">
+            <div className="text-[10px] text-slate-500 italic mt-2 leading-snug">
               <span className="font-bold text-slate-700 block not-italic uppercase tracking-wide text-[8px]">Amount in Words:</span>
               <span>{numberToWords(totalAmount)}</span>
             </div>

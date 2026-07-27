@@ -80,6 +80,8 @@ body {
   max-width: 1600px;
   margin: 0 auto;
   padding: 2rem 2rem 4rem;
+  padding-left: max(2rem, env(safe-area-inset-left));
+  padding-right: max(2rem, env(safe-area-inset-right));
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -420,7 +422,7 @@ body {
 /* ─── Empty State ──────────────────────────────────────────────────────────── */
 .empty-state {
   padding: 5rem 2rem; text-align: center;
-  display: none; flex-direction: column; align-items: center;
+  display: flex; flex-direction: column; align-items: center;
 }
 .empty-state svg { width: 44px; height: 44px; color: var(--text-3); margin-bottom: 1rem; opacity: 0.35; }
 .empty-state h4 { font-family: 'Instrument Serif', serif; font-size: 1.25rem; font-weight: 400; color: var(--text-2); margin-bottom: 0.4rem; }
@@ -895,9 +897,12 @@ body::after {
 }
 
 .data-table thead tr { background: #080c14; }
+/* Consolidated: overrides the base thead th above with premium-edition values */
 .data-table thead th {
   font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-2); padding: 0.75rem 1rem;
+  white-space: nowrap;
+  position: sticky; top: 0; z-index: 5;
 }
 .data-table tbody tr:hover { background: #131b2a !important; }
 
@@ -961,7 +966,7 @@ th[data-sort="smart"] .sort-icon { color: var(--gold); font-size: 0.75rem; }
 @keyframes rowFadeIn { from { opacity:0; transform:translateY(2px); } to { opacity:1; transform:translateY(0); } }
 #table-body tr.row-animate { animation: rowFadeIn 0.12s var(--ease) both; }
 
-/* Keep the premium motion, but avoid Chrome's heaviest paint paths. */
+/* Avoid Chrome's heaviest paint paths. Force scroll attachment for perf. */
 body { background-attachment: scroll; }
 body::before { animation-duration: 18s; opacity: 0.72; }
 .app-header::after { animation-duration: 12s; opacity: 0.55; }
@@ -974,6 +979,13 @@ dialog::backdrop { backdrop-filter: none !important; }
 }
 .btn-primary:hover {
   box-shadow: 0 3px 14px rgba(200,169,106,0.25), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+/* Kill expensive animations entirely on mobile to preserve battery and fps */
+@media (max-width: 768px) {
+  body::before { animation: none !important; opacity: 0.6; }
+  .app-header::after { animation: none !important; }
+  body { background-attachment: scroll !important; }
 }
 
 /* ── EMPTY STATE ── */
@@ -1097,219 +1109,266 @@ dialog::backdrop { backdrop-filter: none !important; }
 .export-nudge svg { width: 11px; height: 11px; }
   
 /* ==========================================================================
-   MOBILE OPTIMIZATION (iPhone 15 Pro Max / Android)
+   MOBILE OPTIMIZATION — iPhone 15 Pro Max (430px) & iPhone 12R / XR (414px)
    ========================================================================== */
+
+/* ── Tablet & large phone (≤ 768px) ── */
 @media (max-width: 768px) {
+
+  /* Layout */
   .app {
     padding: 12px;
-    gap: 16px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    gap: 14px;
   }
-  
+
+  /* Header */
   .app-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 16px;
-    padding: 16px;
-  }
-  
-  .brand {
-    width: 100%;
-    justify-content: center;
-    margin-bottom: 8px;
-  }
-  
-  .header-actions {
-    justify-content: stretch;
-    width: 100%;
+    gap: 12px;
+    padding: 14px 16px;
+    padding-top: max(14px, env(safe-area-inset-top));
   }
 
+  .brand {
+    justify-content: center;
+  }
+
+  /* Header action buttons — horizontally scrollable pill row */
+  .header-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px;
+    padding-bottom: 2px;
+  }
+  .header-actions::-webkit-scrollbar { display: none; }
   .header-actions .btn {
-    flex: 1;
-    justify-content: center;
+    flex-shrink: 0;
+    min-height: 44px; /* Apple HIG tap target */
+    padding: 0.5rem 0.9rem;
+    font-size: 0.78rem;
   }
-  
-  .toolbar {
-    width: 100%;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  .toolbar .btn {
-    flex: 1 1 calc(50% - 8px);
-    justify-content: center;
-  }
-  
+
+  /* Metrics — 2 columns (not 1) to avoid excessive vertical scrolling */
   .metrics-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
-  
+
+  /* Toolbar */
   .grid-toolbar {
     flex-direction: column;
     align-items: stretch;
-    padding: 16px;
-    gap: 12px;
+    padding: 14px 16px;
+    gap: 10px;
   }
-  
-  .search-wrap {
-    max-width: 100%;
-    width: 100%;
-  }
-  
+
+  .search-wrap { width: 100%; min-width: 0; }
+  .search-input { min-height: 44px; font-size: 16px; } /* 16px prevents iOS zoom-on-focus */
+
+  /* Tab bar — horizontal scroll, no wrap */
   .tabs {
     width: 100%;
     overflow-x: auto;
-    padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-    justify-content: flex-start;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 2px;
+    gap: 4px;
   }
-  
-  .tabs::-webkit-scrollbar {
-    height: 4px;
+  .tabs::-webkit-scrollbar { height: 2px; }
+  .tabs::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+  .tab {
+    min-height: 38px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
   }
-  .tabs::-webkit-scrollbar-thumb {
-    background: var(--border-2);
-    border-radius: 4px;
-  }
-  
+
+  /* Table — horizontal scroll with momentum */
   .table-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    margin: 0;
-    padding: 0;
-    width: 100%;
     border-radius: 0;
   }
+  .data-table { min-width: 780px; }
 
-  .data-table {
-    min-width: 800px; /* Force table to be wide enough to prevent squishing */
-  }
-  
+  /* Dialogs — full-width sheet style with safe area */
   dialog {
     width: 95vw !important;
     max-height: 90vh !important;
     margin: auto !important;
-    padding: 0 !important;
-    border-radius: 16px !important;
+    border-radius: 20px !important;
   }
-  
+  dialog::backdrop { backdrop-filter: none !important; }
+
   .dialog-body {
     padding: 16px;
-    max-height: 70vh;
+    max-height: calc(90vh - 140px);
+    -webkit-overflow-scrolling: touch;
   }
-
   .dialog-actions {
     flex-direction: column;
-    padding: 16px;
+    padding: 12px 16px max(16px, env(safe-area-inset-bottom));
+    gap: 8px;
   }
-
   .dialog-actions .btn {
     width: 100%;
     justify-content: center;
+    min-height: 44px;
   }
-  
+
+  /* Forms — single column, readable sizes */
   .form-row, .form-row-2, .form-row-3 {
     grid-template-columns: 1fr !important;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
-  
+  .form-input, .form-select, .form-textarea {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    min-height: 44px;
+    padding: 0.7rem 0.85rem;
+  }
+
+  /* Footer */
   .app-footer {
     flex-direction: column;
     text-align: center;
-    gap: 12px;
-    padding-bottom: env(safe-area-inset-bottom, 20px); /* iPhone home indicator safe area */
+    gap: 10px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
   }
+
+  /* Drawer — full height on mobile */
+  .drawer {
+    width: 100% !important;
+    max-width: 100vw;
+    border-left: none;
+    border-top: 1px solid rgba(200,169,106,0.15);
+    top: auto;
+    height: 92vh;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
+  }
+  .drawer.open { transform: translateY(0); }
 }
 
-/* ─── Premium Mobile Optimization (iPhone 15 Pro Max, OnePlus 12R) ─── */
+/* ── Small phones: iPhone 15 Pro Max (430px) & iPhone 12R / XR (414px) ── */
 @media (max-width: 450px) {
+
+  body { font-size: 15px; }
+
   .app {
     padding: 8px;
-    gap: 12px;
+    padding-left: max(8px, env(safe-area-inset-left));
+    padding-right: max(8px, env(safe-area-inset-right));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    gap: 10px;
   }
-  
+
   .app-header {
-    padding: 12px;
-    gap: 12px;
+    padding: 10px 12px;
+    padding-top: max(10px, env(safe-area-inset-top));
+    gap: 10px;
   }
 
+  .brand-logo-img { width: 52px; height: 52px; }
+  .brand-text h1 { font-size: 1.4rem; }
+  .brand-sub { font-size: 0.62rem; }
+
+  /* Action buttons — compact, still 44px tall */
   .header-actions .btn {
-    font-size: 0.75rem;
-    padding: 0.45rem 0.8rem;
+    font-size: 0.72rem;
+    padding: 0.5rem 0.7rem;
+    gap: 4px;
+    min-height: 44px;
   }
+  .header-actions .btn svg { width: 12px; height: 12px; }
 
+  /* Metric cards — always 2 columns on small phones */
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
-  
-  .metric-label {
-    font-size: 0.6rem;
+  .metric-card {
+    padding: 1rem 1rem 0.85rem;
   }
-  
-  .metric-sub {
-    font-size: 0.65rem;
+  .metric-value { font-size: 2.2rem; }
+  .metric-label { font-size: 0.58rem; }
+  .metric-sub { font-size: 0.62rem; }
+
+  /* Toolbar */
+  .grid-toolbar { padding: 10px 12px; gap: 8px; }
+
+  /* Tabs — smaller but still 38px tap height */
+  .tab {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.7rem;
+    min-height: 36px;
   }
-  
-  .grid-toolbar {
-    padding: 12px;
-    gap: 10px;
-  }
-  
-  .tabs .tab {
-    padding: 0.35rem 0.65rem;
-    font-size: 0.72rem;
-  }
-  
+
+  /* Table */
   .data-table {
-    min-width: 700px;
-    font-size: 0.75rem;
+    min-width: 680px;
+    font-size: 0.78rem;
   }
-  
   .data-table td, .data-table thead th {
-    padding: 0.6rem 0.8rem;
+    padding: 0.6rem 0.75rem;
   }
-  
+
+  /* Dialogs — edge-to-edge */
   dialog {
-    width: 98vw !important;
-    max-height: 95vh !important;
-    border-radius: 12px !important;
-  }
-
-  .dialog-header {
-    padding: 1.1rem 1.2rem;
-  }
-  
-  .dialog-body {
-    padding: 1.1rem 1.2rem;
-  }
-
-  .dialog-actions {
-    padding: 1.1rem 1.2rem;
-  }
-}
-
-/* ─── Button Mobile Responsiveness ─────────────────────────────────────────── */
-@media (hover: none) {
-  /* Disable sticky hovers on touch devices */
-  .btn:hover, .btn-primary:hover, .btn-secondary:hover, .btn-ghost:hover, .btn-danger:hover, .btn-icon:hover {
+    width: 100vw !important;
+    max-height: 97vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    margin: 0 auto !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    top: auto !important;
     transform: none !important;
-    background: inherit; 
-    /* We can't perfectly reset background to inherit for all without breaking, 
-       but transform is the main offender. */
+  }
+  .dialog-header { padding: 1rem 1.1rem 0.85rem; }
+  .dialog-header h3 { font-size: 1.1rem; }
+  .dialog-body {
+    padding: 12px 14px;
+    max-height: calc(97vh - 130px);
+  }
+  .dialog-actions {
+    padding: 10px 14px max(14px, env(safe-area-inset-bottom));
   }
 }
-/* Add snappy active states for all buttons */
-.btn:active, .btn-primary:active, .btn-secondary:active, .btn-ghost:active, .btn-danger:active {
-  transform: scale(0.96) !important;
-  opacity: 0.9;
+
+/* ── Touch device: disable sticky hover states ── */
+@media (hover: none) and (pointer: coarse) {
+  .btn:hover, .btn-primary:hover, .btn-secondary:hover,
+  .btn-ghost:hover, .btn-danger:hover, .btn-icon:hover,
+  .metric-card:hover, .data-table tbody tr:hover {
+    transform: none !important;
+    box-shadow: inherit;
+  }
+  /* Remove translateY hover from cards on touch */
+  .metric-card:hover { transform: none; }
 }
-.btn-icon:active {
-  transform: scale(0.85) !important;
-  opacity: 0.8;
+
+/* ── Snappy active/press feedback for all tap targets ── */
+.btn:active, .btn-primary:active, .btn-secondary:active,
+.btn-ghost:active, .btn-danger:active {
+  transform: scale(0.96) !important;
+  opacity: 0.88;
+  transition-duration: 0.06s !important;
+}
+.btn-icon:active, .icon-btn:active {
+  transform: scale(0.86) !important;
+  opacity: 0.75;
+  transition-duration: 0.06s !important;
+}
+.metric-card:active {
+  transform: scale(0.98) !important;
+  opacity: 0.9;
+  transition-duration: 0.08s !important;
 }
 
 /* ─── Print Styles ─────────────────────────────────────────────────────────── */
@@ -1318,7 +1377,5 @@ dialog::backdrop { backdrop-filter: none !important; }
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  @page {
-    margin: 0;
-  }
+  @page { margin: 0; }
 }
