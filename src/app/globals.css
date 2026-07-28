@@ -1387,6 +1387,8 @@ dialog::backdrop { backdrop-filter: none !important; }
     bottom: 0 !important;
     top: auto !important;
     transform: none !important;
+  }
+  dialog[open] {
     display: flex !important;
     flex-direction: column !important;
   }
