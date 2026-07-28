@@ -144,9 +144,8 @@ export default function TablePanel() {
                 <th className="sortable" data-sort="smart" onClick={() => handleSort('smart')}>Status <span className="sort-icon" id="sort-smart">{sortCol === 'smart' ? (sortDir === 'asc' ? '↑' : '↓') : '⚡'}</span></th>
                 <th className="sortable" data-sort="expiry" onClick={() => handleSort('expiry')}>Expiry <span className="sort-icon" id="sort-expiry">{sortCol === 'expiry' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span></th>
                 <th className="sortable" data-sort="dues" onClick={() => handleSort('dues')}>Balance <span className="sort-icon" id="sort-dues">{sortCol === 'dues' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span></th>
-                <th>Last Sent</th>
-                <th style={{}}>Broadcast</th>
-                <th style={{}}>Actions</th>
+                <th>Broadcast</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="table-body">

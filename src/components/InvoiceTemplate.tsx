@@ -83,7 +83,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
         `}</style>
 
         {/* HEADER SECTION */}
-        <div className="w-full bg-[#0b337c] text-white p-5 rounded-sm relative overflow-hidden flex items-center justify-between shrink-0 z-10 shadow-md">
+        <div className="w-full bg-[#0b337c] text-white p-5 rounded-sm relative overflow-hidden flex items-center justify-between shrink-0 z-10 shadow-md" style={{ padding: '20px' }}>
           {/* Header background accents */}
           <div className="absolute top-0 right-0 w-2/3 h-full bg-[#1e3a8a] z-0" style={{ clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)" }}></div>
           
@@ -109,7 +109,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
           </div>
 
           {/* Right side Metadata */}
-          <div className="relative z-10 flex flex-col items-end gap-2 pr-2">
+          <div className="relative z-10 flex flex-col items-end gap-2 pr-6" style={{ paddingRight: '24px' }}>
             <div className="bg-[#1e40af] text-white px-3 py-0.5 font-bold text-[10px] rounded-sm tracking-wider font-display uppercase border border-blue-400/20">
               TAX INVOICE
             </div>
@@ -128,10 +128,10 @@ export default function InvoiceTemplate({ member }: { member: any }) {
         <div className="grid grid-cols-2 gap-6 my-2 text-[12px] font-body shrink-0 z-10">
           {/* FROM CARD */}
           <div className="bg-slate-50/80 border border-slate-200/60 rounded-md shadow-sm overflow-hidden flex flex-col">
-            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]">
+            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]" style={{ padding: '6px 16px' }}>
               <p className="text-[9px] font-bold tracking-wider uppercase font-display m-0">From</p>
             </div>
-            <div className="p-4 space-y-1.5 pt-3">
+            <div className="p-4 space-y-1.5 pt-3" style={{ padding: '12px 16px 16px 16px' }}>
               <h3 className="font-bold text-slate-900 font-display text-sm">IQ IRON FITNESS</h3>
               <p className="text-slate-600 leading-relaxed">
                 123, Power House Road,<br />
@@ -148,10 +148,10 @@ export default function InvoiceTemplate({ member }: { member: any }) {
 
           {/* BILL TO CARD */}
           <div className="bg-slate-50/80 border border-slate-200/60 rounded-md shadow-sm overflow-hidden flex flex-col">
-            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]">
+            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]" style={{ padding: '6px 16px' }}>
               <p className="text-[9px] font-bold tracking-wider uppercase font-display m-0">Bill To</p>
             </div>
-            <div className="p-4 space-y-1.5 pt-3">
+            <div className="p-4 space-y-1.5 pt-3" style={{ padding: '12px 16px 16px 16px' }}>
               <h3 className="font-bold text-slate-900 font-display text-sm capitalize">{memberName}</h3>
               <p className="text-slate-600 leading-relaxed">
                 {member?.address ? (

@@ -19,8 +19,7 @@ function AppContent() {
 
       <footer className="app-footer">
         <div className="footer-left">IQ Iron Fitness CRM</div>
-        <div className="footer-center">
-        </div>
+
         <div className="footer-right">Live Sync • Supabase</div>
       </footer>
     </div>

@@ -62,7 +62,7 @@ export default function Metrics() {
   return (
     <>
       <section className="metrics-grid">
-        <div className="metric-card --total" style={{}}>
+        <div className="metric-card --total">
           <div className="metric-top">
             <span className="metric-label">Total Members</span>
             <div className="metric-icon --total">
@@ -106,7 +106,7 @@ export default function Metrics() {
           <div className="metric-top">
             <span className="metric-label">Pending Dues</span>
             <div className="metric-icon --dues">
-              <span style={{}}>₹</span>
+              <span>₹</span>
             </div>
           </div>
           <div className="metric-value" id="m-dues-val">₹{stats.pendingDues}</div>

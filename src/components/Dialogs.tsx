@@ -311,7 +311,7 @@ export default function Dialogs() {
     
     const encoded = encodeURIComponent(finalMessage);
     let cleanPhone = phone.replace(/[^0-9]/g, '');
-    let cc = settings.system.countryCode.replace('+', '');
+    const cc = settings.system.countryCode.replace('+', '');
     if (cleanPhone.startsWith(cc) && cleanPhone.length > 10) {
       cleanPhone = cleanPhone.substring(cc.length);
     }
@@ -328,7 +328,7 @@ export default function Dialogs() {
 <div className="dialog-header">
 <h3>Add New Member</h3>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsAddOpen(false)}>
-<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" style={{}} viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
 </button>
 </div>
 <div className="dialog-body">
@@ -365,7 +365,7 @@ export default function Dialogs() {
 </div>
 <div className="form-group">
 <label className="form-label">Expiry Date</label>
-<input className="form-input" id="add-expiry" name="add-expiry" readOnly style={{}} type="date" value={addForm.expiry_date}/>
+<input className="form-input" id="add-expiry" name="add-expiry" readOnly type="date" value={addForm.expiry_date}/>
 <span className="form-hint">Auto-calculated from type + start</span>
 </div>
 </div>
@@ -379,7 +379,7 @@ export default function Dialogs() {
 </select>
 </div>
 {addForm.has_personal_trainer === 'yes' && (
-  <div className="form-group" id="add-trainer-group" style={{}}>
+  <div className="form-group" id="add-trainer-group">
   <label className="form-label">Trainer Name</label>
   <select className="form-select" id="add-trainer-name" name="add-trainer-name" value={addForm.trainer_id} onChange={(e) => handleAddChange('trainer_id', e.target.value)}>
   <option value="">— Select Trainer —</option>
@@ -420,7 +420,7 @@ export default function Dialogs() {
 <label className="form-label">Balance Due</label>
 <div className="input-prefix-wrap">
 <span className="input-prefix currency-prefix">₹</span>
-<input className="form-input prefixed" id="add-balance" name="add-balance" min="0" readOnly style={{}} type="number" value={addForm.balance_due}/>
+<input className="form-input prefixed" id="add-balance" name="add-balance" min="0" readOnly type="number" value={addForm.balance_due}/>
 </div>
 <span className="form-hint">Auto = Total − Paid</span>
 </div>
@@ -441,7 +441,7 @@ export default function Dialogs() {
 <div className="dialog-header">
 <h3>Edit Member</h3>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsEditOpen(false)}>
-<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" style={{}} viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
 </button>
 </div>
 <div className="dialog-body">
@@ -492,7 +492,7 @@ export default function Dialogs() {
 </select>
 </div>
 {editForm.has_personal_trainer && (
-  <div className="form-group" id="edit-trainer-group" style={{}}>
+  <div className="form-group" id="edit-trainer-group">
   <label className="form-label">Trainer Name</label>
   <select id="edit-trainer-name"  value={editForm.trainer_id || ""} onChange={(e) => handleEditChange("trainer_id", e.target.value)}>
   <option value="">— Select Trainer —</option>
@@ -533,7 +533,7 @@ export default function Dialogs() {
 <label className="form-label">Balance Due</label>
 <div className="input-prefix-wrap">
 <span className="input-prefix currency-prefix">₹</span>
-<input id="edit-balance" style={{}} type="number" value={Math.max(0, (editForm.pending_amount || 0) - (editForm.add_payment || 0))} readOnly/>
+<input id="edit-balance" type="number" value={Math.max(0, (editForm.pending_amount || 0) - (editForm.add_payment || 0))} readOnly/>
 </div>
 </div>
 </div>
@@ -563,7 +563,7 @@ export default function Dialogs() {
 <p className="dialog-sub" id="pay-dialog-sub"></p>
 </div>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsPaymentsOpen(false)}>
-<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" style={{}} viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
 </button>
 </div>
 <div className="dialog-body">
@@ -587,7 +587,7 @@ export default function Dialogs() {
 <p className="dialog-sub" id="broadcast-member-sub"></p>
 </div>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsBroadcastOpen(false)}>
-<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" style={{}} viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
 </button>
 </div>
 <div className="dialog-body">
@@ -626,14 +626,14 @@ export default function Dialogs() {
 </Modal>
 <Modal id="dialog-delete" isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)}>
 <div className="dialog-header">
-<h3 style={{}}>Confirm Deletion</h3>
+<h3>Confirm Deletion</h3>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsDeleteOpen(false)}>
-<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" style={{}} viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
 </button>
 </div>
 <div className="dialog-body">
-<p style={{}}>
-      Remove <strong id="delete-name" style={{}}>this member</strong> from the database? This cannot be undone.
+<p>
+      Remove <strong id="delete-name">this member</strong> from the database? This cannot be undone.
     </p>
 </div>
 <div className="dialog-actions">
@@ -645,7 +645,7 @@ export default function Dialogs() {
 <div className="dialog-header">
 <h3>Manage Trainers</h3>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsTrainersOpen(false)}>
-<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" style={{}} viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
 </button>
 </div>
 <div className="dialog-body">
@@ -661,7 +661,7 @@ export default function Dialogs() {
 <input 
   className="form-input" 
   placeholder="Trainer full name" 
-  style={{}} 
+  
   type="text"
   value={newTrainerName}
   onChange={(e) => setNewTrainerName(e.target.value)}
@@ -688,7 +688,7 @@ export default function Dialogs() {
 <div className="dialog-header">
 <h3>Settings</h3>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsSettingsOpen(false)}>
-<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" style={{}} viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
 </button>
 </div>
 <div className="dialog-body">
@@ -756,7 +756,7 @@ export default function Dialogs() {
 <p className="dialog-sub" id="broadcast-all-sub">Compose one WhatsApp message and choose the group in WhatsApp</p>
 </div>
 <button type="button" className="icon-btn close-dialog" onClick={() => setIsBroadcastAllOpen(false)}>
-<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" style={{}} viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+<svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
 </button>
 </div>
 <div className="dialog-body">
@@ -770,7 +770,7 @@ export default function Dialogs() {
 <option value="dues">Members with Pending Dues</option>
 </select>
 </div>
-<div className="form-group" style={{}}>
+<div className="form-group">
 <label className="form-label">Custom Message <span className="req">*</span></label>
 <textarea className="form-textarea" id="broadcast-all-message" placeholder="Type your custom group message here..." rows={7} value={broadcastAllMessage} onChange={(e) => setBroadcastAllMessage(e.target.value)}></textarea>
 <span className="form-hint">Opens one WhatsApp screen. Choose any person, gym group, or community there.</span>

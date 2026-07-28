@@ -64,7 +64,7 @@ export default function EmployeeSalaryTemplate({ trainerName, basicPay, commissi
         `}</style>
 
         {/* HEADER SECTION (Deep Blue with gradient) */}
-        <div className="bg-gradient-to-r from-[#0b1f4c] to-[#122e6b] text-white p-5 pr-12 rounded-t-lg flex justify-between items-center relative overflow-hidden shrink-0 z-10 shadow-md">
+        <div className="bg-gradient-to-r from-[#0b1f4c] to-[#122e6b] text-white p-5 pr-12 rounded-t-lg flex justify-between items-center relative overflow-hidden shrink-0 z-10 shadow-md" style={{ padding: '20px', paddingRight: '48px' }}>
           {/* subtle background pattern */}
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
           
@@ -87,7 +87,7 @@ export default function EmployeeSalaryTemplate({ trainerName, basicPay, commissi
           </div>
 
           {/* Right side Metadata */}
-          <div className="relative z-10 flex flex-col items-end gap-2 pr-2">
+          <div className="relative z-10 flex flex-col items-end gap-2 pr-6" style={{ paddingRight: '24px' }}>
             <div className="bg-[#1e40af] text-white px-3 py-0.5 font-bold text-[10px] rounded-sm tracking-wider font-display uppercase border border-blue-400/20">
               SALARY SLIP
             </div>
@@ -106,10 +106,10 @@ export default function EmployeeSalaryTemplate({ trainerName, basicPay, commissi
         <div className="grid grid-cols-2 gap-6 my-2 text-[12px] font-body shrink-0 z-10">
           {/* EMPLOYER CARD */}
           <div className="bg-slate-50/80 border border-slate-200/60 rounded-md shadow-sm overflow-hidden flex flex-col">
-            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]">
+            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]" style={{ padding: '6px 16px' }}>
               <p className="text-[9px] font-bold tracking-wider uppercase font-display m-0">Employer Details</p>
             </div>
-            <div className="p-4 space-y-1.5 pt-3">
+            <div className="p-4 space-y-1.5 pt-3" style={{ padding: '12px 16px 16px 16px' }}>
               <h3 className="font-bold text-slate-900 font-display text-sm">IQ IRON FITNESS</h3>
               <p className="text-slate-600 leading-relaxed">
                 123, Power House Road,<br />
@@ -124,10 +124,10 @@ export default function EmployeeSalaryTemplate({ trainerName, basicPay, commissi
 
           {/* EMPLOYEE CARD */}
           <div className="bg-slate-50/80 border border-slate-200/60 rounded-md shadow-sm overflow-hidden flex flex-col">
-            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]">
+            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]" style={{ padding: '6px 16px' }}>
               <p className="text-[9px] font-bold tracking-wider uppercase font-display m-0">Employee Details</p>
             </div>
-            <div className="p-4 space-y-1.5 pt-3">
+            <div className="p-4 space-y-1.5 pt-3" style={{ padding: '12px 16px 16px 16px' }}>
               <h3 className="font-bold text-slate-900 font-display text-sm capitalize">{trainerName}</h3>
               <p className="text-slate-600 leading-relaxed font-mono mt-1 text-[11px]">
                 Role: Personal Trainer

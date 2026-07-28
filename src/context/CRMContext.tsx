@@ -184,8 +184,7 @@ export function CRMProvider({ children }: { children: ReactNode }) {
 
     const channel = supabase
       .channel('public:members')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'members' }, (payload: any) => {
-        console.log('Realtime update:', payload);
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'members' }, () => {
         fetchMembers();
       })
       .subscribe();
