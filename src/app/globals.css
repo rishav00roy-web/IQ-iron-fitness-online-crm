@@ -1257,7 +1257,7 @@ dialog::backdrop { backdrop-filter: none !important; }
   dialog {
     width: calc(100% - 32px) !important;
     max-width: 450px !important;
-    max-height: 90vh !important;
+    max-height: 90dvh !important;
     margin: auto !important;
     border-radius: 20px !important;
     box-sizing: border-box !important;
@@ -1266,7 +1266,7 @@ dialog::backdrop { backdrop-filter: none !important; }
 
   .dialog-body {
     padding: 16px;
-    max-height: calc(90vh - 140px);
+    max-height: calc(90dvh - 180px);
     -webkit-overflow-scrolling: touch;
   }
   .dialog-actions {
@@ -1380,19 +1380,22 @@ dialog::backdrop { backdrop-filter: none !important; }
   /* Dialogs — edge-to-edge */
   dialog {
     width: 100vw !important;
-    max-height: 97vh !important;
+    max-height: 95dvh !important;
     border-radius: 20px 20px 0 0 !important;
     margin: 0 auto !important;
     position: fixed !important;
     bottom: 0 !important;
     top: auto !important;
     transform: none !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
   .dialog-header { padding: 1rem 1.1rem 0.85rem; }
   .dialog-header h3 { font-size: 1.1rem; }
   .dialog-body {
     padding: 12px 14px;
-    max-height: calc(97vh - 130px);
+    max-height: calc(95dvh - 180px);
+    flex: 1;
   }
   .dialog-actions {
     padding: 10px 14px max(14px, env(safe-area-inset-bottom));
