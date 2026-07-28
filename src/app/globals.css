@@ -1255,10 +1255,12 @@ dialog::backdrop { backdrop-filter: none !important; }
 
   /* Dialogs — full-width sheet style with safe area */
   dialog {
-    width: 95vw !important;
+    width: calc(100% - 32px) !important;
+    max-width: 450px !important;
     max-height: 90vh !important;
     margin: auto !important;
     border-radius: 20px !important;
+    box-sizing: border-box !important;
   }
   dialog::backdrop { backdrop-filter: none !important; }
 

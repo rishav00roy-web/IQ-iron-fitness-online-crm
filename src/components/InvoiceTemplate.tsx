@@ -69,7 +69,11 @@ export default function InvoiceTemplate({ member }: { member: any }) {
               border: none !important;
               padding: 0 !important;
               width: 210mm !important;
-              height: 297mm !important;
+              height: 296mm !important;
+              max-height: 296mm !important;
+              overflow: hidden !important;
+              page-break-after: avoid !important;
+              page-break-inside: avoid !important;
             }
             .print-border-adjust {
               border-[10px] border-[#0b337c] !important;
@@ -105,7 +109,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
           </div>
 
           {/* Right side Metadata */}
-          <div className="relative z-10 flex flex-col items-end gap-2">
+          <div className="relative z-10 flex flex-col items-end gap-2 pr-2">
             <div className="bg-[#1e40af] text-white px-3 py-0.5 font-bold text-[10px] rounded-sm tracking-wider font-display uppercase border border-blue-400/20">
               TAX INVOICE
             </div>
@@ -123,39 +127,47 @@ export default function InvoiceTemplate({ member }: { member: any }) {
         {/* ADDRESS ROW (FROM & BILL TO - Styled as Card Panels) */}
         <div className="grid grid-cols-2 gap-6 my-2 text-[12px] font-body shrink-0 z-10">
           {/* FROM CARD */}
-          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md space-y-1.5 shadow-sm" style={{ padding: '20px' }}>
-            <p className="text-[9px] font-bold text-[#0b337c] tracking-wider uppercase font-display border-b border-slate-200/80 pb-0.5">From</p>
-            <h3 className="font-bold text-slate-900 font-display text-sm">IQ IRON FITNESS</h3>
-            <p className="text-slate-600 leading-relaxed">
-              123, Power House Road,<br />
-              Kothrud, Pune - 411038, Maharashtra, India
-            </p>
-            <div className="flex flex-col gap-0.5 text-slate-500 pt-1 font-mono text-[10px]">
-              <span>Ph: +91 98765 43210</span>
-              <span>Email: info@iqironfitness.com</span>
-              <span>Web: www.iqironfitness.com</span>
-              <span className="font-semibold text-slate-700 mt-0.5">GSTIN: 27ABCDE1234F1Z5</span>
+          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md shadow-sm overflow-hidden flex flex-col">
+            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]">
+              <p className="text-[9px] font-bold tracking-wider uppercase font-display m-0">From</p>
+            </div>
+            <div className="p-4 space-y-1.5 pt-3">
+              <h3 className="font-bold text-slate-900 font-display text-sm">IQ IRON FITNESS</h3>
+              <p className="text-slate-600 leading-relaxed">
+                123, Power House Road,<br />
+                Kothrud, Pune - 411038, Maharashtra, India
+              </p>
+              <div className="flex flex-col gap-0.5 text-slate-500 pt-1 font-mono text-[10px]">
+                <span>Ph: +91 98765 43210</span>
+                <span>Email: info@iqironfitness.com</span>
+                <span>Web: www.iqironfitness.com</span>
+                <span className="font-semibold text-slate-700 mt-0.5">GSTIN: 27ABCDE1234F1Z5</span>
+              </div>
             </div>
           </div>
 
           {/* BILL TO CARD */}
-          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md space-y-1.5 shadow-sm" style={{ padding: '20px' }}>
-            <p className="text-[9px] font-bold text-[#0b337c] tracking-wider uppercase font-display border-b border-slate-200/80 pb-0.5">Bill To</p>
-            <h3 className="font-bold text-slate-900 font-display text-sm capitalize">{memberName}</h3>
-            <p className="text-slate-600 leading-relaxed">
-              {member?.address ? (
-                <>
-                  {member.address.split('\n').map((line: string, i: number) => (
-                    <React.Fragment key={i}>{line}<br/></React.Fragment>
-                  ))}
-                </>
-              ) : (
-                "Address not provided"
-              )}
-            </p>
-            <div className="flex flex-col gap-0.5 text-slate-500 pt-1 font-mono text-[10px]">
-              <span>Ph: +91 {memberPhone}</span>
-              {member?.email && <span>Email: {member.email}</span>}
+          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md shadow-sm overflow-hidden flex flex-col">
+            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]">
+              <p className="text-[9px] font-bold tracking-wider uppercase font-display m-0">Bill To</p>
+            </div>
+            <div className="p-4 space-y-1.5 pt-3">
+              <h3 className="font-bold text-slate-900 font-display text-sm capitalize">{memberName}</h3>
+              <p className="text-slate-600 leading-relaxed">
+                {member?.address ? (
+                  <>
+                    {member.address.split('\n').map((line: string, i: number) => (
+                      <React.Fragment key={i}>{line}<br/></React.Fragment>
+                    ))}
+                  </>
+                ) : (
+                  "Address not provided"
+                )}
+              </p>
+              <div className="flex flex-col gap-0.5 text-slate-500 pt-1 font-mono text-[10px]">
+                <span>Ph: +91 {memberPhone}</span>
+                {member?.email && <span>Email: {member.email}</span>}
+              </div>
             </div>
           </div>
         </div>

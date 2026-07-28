@@ -54,7 +54,11 @@ export default function EmployeeSalaryTemplate({ trainerName, basicPay, commissi
               border: none !important;
               padding: 0 !important;
               width: 210mm !important;
-              height: 297mm !important;
+              height: 296mm !important;
+              max-height: 296mm !important;
+              overflow: hidden !important;
+              page-break-after: avoid !important;
+              page-break-inside: avoid !important;
             }
           }
         `}</style>
