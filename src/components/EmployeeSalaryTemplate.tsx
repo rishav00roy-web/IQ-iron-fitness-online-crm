@@ -59,14 +59,15 @@ export default function EmployeeSalaryTemplate({ trainerName, basicPay, ptClient
           }
         `}</style>
 
-        {/* HEADER SECTION */}
-        <div className="w-full bg-[#0b337c] text-white p-5 rounded-sm relative overflow-hidden flex items-center justify-between shrink-0 z-10 shadow-md">
-          {/* Header background accents */}
-          <div className="absolute top-0 right-0 w-2/3 h-full bg-[#1e3a8a] z-0" style={{ clipPath: "polygon(15% 0, 100% 0, 100% 100%, 0% 100%)" }}></div>
+        {/* HEADER SECTION (Deep Blue with gradient) */}
+        <div className="bg-gradient-to-r from-[#0b1f4c] to-[#122e6b] text-white p-5 pr-12 rounded-t-lg flex justify-between items-center relative overflow-hidden shrink-0 z-10 shadow-md">
+          {/* subtle background pattern */}
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
           
-          <div className="relative z-10 flex items-center gap-4">
-            <img
-              src="/logo.png"
+          {/* Left side Logo & Title */}
+          <div className="relative z-10 flex items-center gap-3">
+            <img 
+              src="/logo.png" 
               alt="IQ Iron Fitness Logo"
               className="w-16 h-16 object-contain"
               style={{ filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.3))" }}
@@ -82,7 +83,7 @@ export default function EmployeeSalaryTemplate({ trainerName, basicPay, ptClient
           </div>
 
           {/* Right side Metadata */}
-          <div className="relative z-10 flex flex-col items-end gap-2">
+          <div className="relative z-10 flex flex-col items-end gap-2 pr-2">
             <div className="bg-[#1e40af] text-white px-3 py-0.5 font-bold text-[10px] rounded-sm tracking-wider font-display uppercase border border-blue-400/20">
               SALARY SLIP
             </div>
@@ -100,32 +101,40 @@ export default function EmployeeSalaryTemplate({ trainerName, basicPay, ptClient
         {/* EMPLOYEE DETAILS ROW */}
         <div className="grid grid-cols-2 gap-6 my-2 text-[12px] font-body shrink-0 z-10">
           {/* EMPLOYER CARD */}
-          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md space-y-1.5 shadow-sm" style={{ padding: '20px' }}>
-            <p className="text-[9px] font-bold text-[#0b337c] tracking-wider uppercase font-display border-b border-slate-200/80 pb-0.5">Employer Details</p>
-            <h3 className="font-bold text-slate-900 font-display text-sm">IQ IRON FITNESS</h3>
-            <p className="text-slate-600 leading-relaxed">
-              123, Power House Road,<br />
-              Kothrud, Pune - 411038, Maharashtra, India
-            </p>
-            <div className="flex flex-col gap-0.5 text-slate-500 pt-1 font-mono text-[10px]">
-              <span>Ph: +91 98765 43210</span>
-              <span>Email: hr@iqironfitness.com</span>
+          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md shadow-sm overflow-hidden flex flex-col">
+            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]">
+              <p className="text-[9px] font-bold tracking-wider uppercase font-display m-0">Employer Details</p>
+            </div>
+            <div className="p-4 space-y-1.5 pt-3">
+              <h3 className="font-bold text-slate-900 font-display text-sm">IQ IRON FITNESS</h3>
+              <p className="text-slate-600 leading-relaxed">
+                123, Power House Road,<br />
+                Kothrud, Pune - 411038, Maharashtra, India
+              </p>
+              <div className="flex flex-col gap-0.5 text-slate-500 pt-1 font-mono text-[10px]">
+                <span>Ph: +91 98765 43210</span>
+                <span>Email: hr@iqironfitness.com</span>
+              </div>
             </div>
           </div>
 
           {/* EMPLOYEE CARD */}
-          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md space-y-1.5 shadow-sm" style={{ padding: '20px' }}>
-            <p className="text-[9px] font-bold text-[#0b337c] tracking-wider uppercase font-display border-b border-slate-200/80 pb-0.5">Employee Details</p>
-            <h3 className="font-bold text-slate-900 font-display text-sm capitalize">{trainerName}</h3>
-            <p className="text-slate-600 leading-relaxed font-mono mt-1 text-[11px]">
-              Role: Personal Trainer
-            </p>
-            <p className="text-slate-600 leading-relaxed font-mono text-[11px]">
-              Department: Fitness & Training
-            </p>
-            <p className="text-slate-600 leading-relaxed font-mono text-[11px]">
-              Payment Mode: Bank Transfer
-            </p>
+          <div className="bg-slate-50/80 border border-slate-200/60 rounded-md shadow-sm overflow-hidden flex flex-col">
+            <div className="bg-[#0b337c] text-white px-4 py-1.5 border-b border-[#08265e]">
+              <p className="text-[9px] font-bold tracking-wider uppercase font-display m-0">Employee Details</p>
+            </div>
+            <div className="p-4 space-y-1.5 pt-3">
+              <h3 className="font-bold text-slate-900 font-display text-sm capitalize">{trainerName}</h3>
+              <p className="text-slate-600 leading-relaxed font-mono mt-1 text-[11px]">
+                Role: Personal Trainer
+              </p>
+              <p className="text-slate-600 leading-relaxed font-mono text-[11px]">
+                Department: Fitness & Training
+              </p>
+              <p className="text-slate-600 leading-relaxed font-mono text-[11px]">
+                Payment Mode: Bank Transfer
+              </p>
+            </div>
           </div>
         </div>
 
