@@ -7,12 +7,12 @@ const formatCurrency = (n: number) =>
     n || 0
   );
 
-export default function EmployeeSalaryTemplate({ trainerName, basicPay, ptClients }: { trainerName: string, basicPay: number, ptClients: any[] }) {
+export default function EmployeeSalaryTemplate({ trainerName, basicPay, commission: customCommission, ptClients }: { trainerName: string, basicPay: number, commission?: number, ptClients: any[] }) {
   const [payslipNumber] = useState(() => `PS-${Math.floor(10000 + Math.random() * 90000)}`);
   const [payslipDate] = useState(() => new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase());
   const [period] = useState(() => new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" }).toUpperCase());
 
-  const commission = ptClients.reduce((sum, c) => sum + (c.pt_fee || 0), 0);
+  const commission = customCommission !== undefined ? customCommission : ptClients.reduce((sum, c) => sum + (c.pt_fee || 0), 0);
   const netSalary = basicPay + commission;
 
   return (

@@ -1188,18 +1188,18 @@ dialog::backdrop { backdrop-filter: none !important; }
 
   /* Table — Mobile Card Layout */
   .table-wrap {
-    overflow-x: hidden;
+    overflow-x: hidden !important;
     border-radius: 0;
     background: transparent;
     padding: 0;
   }
   .data-table, .data-table tbody, .data-table tr, .data-table td {
-    display: block;
-    width: 100%;
-    min-width: 0;
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
   }
   .data-table thead {
-    display: none;
+    display: none !important;
   }
   .data-table tr {
     margin-bottom: 14px;
@@ -1213,7 +1213,7 @@ dialog::backdrop { backdrop-filter: none !important; }
     padding: 10px 14px;
     text-align: right;
     border-bottom: 1px solid var(--border-1);
-    display: flex;
+    display: flex !important;
     justify-content: space-between;
     align-items: center;
     gap: 10px;

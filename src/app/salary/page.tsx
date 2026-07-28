@@ -57,6 +57,12 @@ function SalaryContent() {
     setTrainers(updated);
   };
 
+  const handleCommissionChange = (index: number, val: string) => {
+    const updated = [...trainers];
+    updated[index].commission = Number(val) || 0;
+    setTrainers(updated);
+  };
+
   const handleGeneratePayslip = async (trainerId: string, trainerName: string, basicPay: number, commission: number) => {
     await supabase.from('payroll').upsert({
       trainer_id: trainerId,
@@ -65,8 +71,7 @@ function SalaryContent() {
       commission: commission,
       total_salary: basicPay + commission
     }, { onConflict: 'trainer_id,period' });
-    
-    router.push(`/salary-print/${trainerId}?basicPay=${basicPay}`);
+    router.push(`/salary-print/${trainerId}?basicPay=${basicPay}&commission=${commission}`);
   };
 
   return (
@@ -148,9 +153,15 @@ function SalaryContent() {
                       />
                     </div>
                     
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.5rem', borderTop: '1px solid var(--border-1)' }}>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-2)' }}>PT Commission (20%)</span>
-                      <span style={{ color: 'var(--green)', fontFamily: '"DM Mono", monospace', fontWeight: 600 }}>₹ {t.commission.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-1)' }}>
+                      <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-3)', fontFamily: '"DM Mono", monospace' }}>PT Commission (₹)</label>
+                      <input 
+                        type="number" 
+                        className="form-input"
+                        value={t.commission}
+                        onChange={(e) => handleCommissionChange(idx, e.target.value)}
+                        min="0"
+                      />
                     </div>
                   </div>
 

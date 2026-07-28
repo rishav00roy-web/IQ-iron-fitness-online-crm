@@ -10,6 +10,7 @@ export default function PrintSalaryPage() {
   const searchParams = useSearchParams();
   const trainerId = decodeURIComponent(paramId as string);
   const basicPay = Number(searchParams.get("basicPay")) || 0;
+  const commission = searchParams.get("commission") ? Number(searchParams.get("commission")) : undefined;
   
   const [actualTrainerName, setActualTrainerName] = useState<string>("Unknown Trainer");
   const [ptClients, setPtClients] = useState<any[]>([]);
@@ -86,6 +87,7 @@ export default function PrintSalaryPage() {
           <EmployeeSalaryTemplate 
             trainerName={actualTrainerName} 
             basicPay={basicPay} 
+            commission={commission}
             ptClients={ptClients} 
           />
         </div>
