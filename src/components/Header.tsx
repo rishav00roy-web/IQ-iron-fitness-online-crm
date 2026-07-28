@@ -4,7 +4,7 @@ import { useCRM } from "@/context/CRMContext";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
-  const { members, setIsAddOpen, setIsBroadcastOpen, setIsBroadcastAllOpen, setIsTrainersOpen, setIsSettingsOpen } = useCRM();
+  const { members, setIsAddOpen, setIsBroadcastAllOpen, setIsTrainersOpen, setIsSettingsOpen } = useCRM();
   const router = useRouter();
 
   const handleExportCSV = () => {

@@ -1137,21 +1137,19 @@ dialog::backdrop { backdrop-filter: none !important; }
     justify-content: center;
   }
 
-  /* Header action buttons — horizontally scrollable pill row */
+  /* Header action buttons — wrapped */
   .header-actions {
     display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    flex-wrap: wrap;
     gap: 6px;
-    padding-bottom: 2px;
+    justify-content: center;
   }
-  .header-actions::-webkit-scrollbar { display: none; }
   .header-actions .btn {
-    flex-shrink: 0;
+    flex: 1 1 auto;
     min-height: 44px; /* Apple HIG tap target */
     padding: 0.5rem 0.9rem;
     font-size: 0.78rem;
+    justify-content: center;
   }
 
   /* Metrics — 2 columns (not 1) to avoid excessive vertical scrolling */
@@ -1188,13 +1186,72 @@ dialog::backdrop { backdrop-filter: none !important; }
     flex-shrink: 0;
   }
 
-  /* Table — horizontal scroll with momentum */
+  /* Table — Mobile Card Layout */
   .table-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
     border-radius: 0;
+    background: transparent;
+    padding: 0;
   }
-  .data-table { min-width: 780px; }
+  .data-table, .data-table tbody, .data-table tr, .data-table td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .data-table thead {
+    display: none;
+  }
+  .data-table tr {
+    margin-bottom: 14px;
+    border: 1px solid var(--border-1);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+  .data-table td {
+    padding: 10px 14px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+  .data-table td::before {
+    content: attr(data-label);
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: 'DM Mono', monospace;
+  }
+  
+  /* Name row styling (Header of the card) */
+  .data-table td:first-child {
+    background: var(--bg-1);
+    padding: 12px 14px;
+  }
+  .data-table td:first-child::before { display: none; }
+  .data-table td:first-child strong { font-size: 1.1rem; }
+  
+  /* Action row (WhatsApp) */
+  .data-table td[data-label="Action"] {
+    justify-content: center;
+  }
+  .data-table td[data-label="Action"]::before { display: none; }
+  
+  /* Row actions (Edit/Delete/Download) */
+  .data-table td[data-label="Manage"] {
+    justify-content: center;
+    background: var(--bg-1);
+    padding: 8px;
+  }
+  .data-table td[data-label="Manage"]::before { display: none; }
 
   /* Dialogs — full-width sheet style with safe area */
   dialog {
@@ -1223,9 +1280,8 @@ dialog::backdrop { backdrop-filter: none !important; }
 
   /* Forms — single column, readable sizes */
   .form-row, .form-row-2, .form-row-3 {
+    display: grid !important;
     grid-template-columns: 1fr !important;
-    display: flex;
-    flex-direction: column;
     gap: 10px;
   }
   .form-input, .form-select, .form-textarea {
@@ -1276,8 +1332,8 @@ dialog::backdrop { backdrop-filter: none !important; }
   }
 
   .brand-logo-img { width: 52px; height: 52px; }
-  .brand-text h1 { font-size: 1.4rem; }
-  .brand-sub { font-size: 0.62rem; }
+  .brand-text h1 { font-size: 1.4rem; white-space: normal; line-height: 1.1; }
+  .brand-sub { font-size: 0.62rem; white-space: normal; }
 
   /* Action buttons — compact, still 44px tall */
   .header-actions .btn {
@@ -1312,7 +1368,7 @@ dialog::backdrop { backdrop-filter: none !important; }
 
   /* Table */
   .data-table {
-    min-width: 680px;
+    min-width: 100%;
     font-size: 0.78rem;
   }
   .data-table td, .data-table thead th {

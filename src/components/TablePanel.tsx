@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useCRM } from "@/context/CRMContext";
 
 export default function TablePanel() {
@@ -12,6 +12,17 @@ export default function TablePanel() {
     setIsBroadcastOpen, setIsDeleteOpen
   } = useCRM();
 
+  const [sortCol, setSortCol] = useState<string>('created_at');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (col: string) => {
+    if (sortCol === col) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortCol(col);
+      setSortDir('asc');
+    }
+  };
 
   const handleGenerateBill = (member: any) => {
     setSelectedMember(member);
@@ -23,14 +34,11 @@ export default function TablePanel() {
     const phone = member.phone ? member.phone.replace(/[^0-9]/g, '') : '';
     const msg = `Hi ${member.name}, please find attached the receipt for your gym membership fee. Thank you!`;
     if (phone) {
-      setTimeout(() => {
-        const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-        window.open(url, "_blank");
-      }, 500); // Small delay to let the print tab open first
+      const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+      // On mobile, this natively opens the WA app. On desktop, it navigates to WA web.
+      window.open(url, "_blank"); 
     } else {
-      setTimeout(() => {
-        alert('Print tab opened. No phone number to send WhatsApp message.');
-      }, 500);
+      alert('Print tab opened. No phone number to send WhatsApp message.');
     }
   };
 
@@ -38,7 +46,7 @@ export default function TablePanel() {
     return members.filter(m => {
       // 1. Search Query
       const q = searchQuery.toLowerCase();
-      if (q && !m.name.toLowerCase().includes(q) && !(m.phone || '').includes(q) && !(m.trainer_name || '').toLowerCase().includes(q)) {
+      if (q && !(m.name || '').toLowerCase().includes(q) && !(m.phone || '').includes(q) && !(m.trainer_name || '').toLowerCase().includes(q)) {
         return false;
       }
       
@@ -74,6 +82,30 @@ export default function TablePanel() {
     });
   }, [members, activeTab, searchQuery]);
 
+  const sortedMembers = useMemo(() => {
+    const sorted = [...filteredMembers];
+    sorted.sort((a, b) => {
+      let valA, valB;
+      const today = new Date().toISOString().slice(0, 10);
+      switch(sortCol) {
+        case 'name':
+          valA = a.name.toLowerCase(); valB = b.name.toLowerCase(); break;
+        case 'smart':
+          valA = a.expiry_date < today ? 0 : 1; valB = b.expiry_date < today ? 0 : 1; break;
+        case 'expiry':
+          valA = a.expiry_date || ''; valB = b.expiry_date || ''; break;
+        case 'dues':
+          valA = a.pending_amount || 0; valB = b.pending_amount || 0; break;
+        default:
+          valA = a.created_at || ''; valB = b.created_at || ''; break;
+      }
+      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [filteredMembers, sortCol, sortDir]);
+
   return (
     <>
       <main className="panel">
@@ -105,13 +137,13 @@ export default function TablePanel() {
           <table className="data-table" id="member-table">
             <thead>
               <tr>
-                <th className="sortable" data-sort="name">Name <span className="sort-icon" id="sort-name">↕</span></th>
+                <th className="sortable" data-sort="name" onClick={() => handleSort('name')}>Name <span className="sort-icon" id="sort-name">{sortCol === 'name' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span></th>
                 <th>Phone</th>
                 <th>Plan</th>
                 <th>Trainer</th>
-                <th className="sortable" data-sort="smart">Status <span className="sort-icon" id="sort-smart">⚡</span></th>
-                <th className="sortable" data-sort="expiry">Expiry <span className="sort-icon" id="sort-expiry">↕</span></th>
-                <th className="sortable" data-sort="dues">Balance <span className="sort-icon" id="sort-dues">↕</span></th>
+                <th className="sortable" data-sort="smart" onClick={() => handleSort('smart')}>Status <span className="sort-icon" id="sort-smart">{sortCol === 'smart' ? (sortDir === 'asc' ? '↑' : '↓') : '⚡'}</span></th>
+                <th className="sortable" data-sort="expiry" onClick={() => handleSort('expiry')}>Expiry <span className="sort-icon" id="sort-expiry">{sortCol === 'expiry' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span></th>
+                <th className="sortable" data-sort="dues" onClick={() => handleSort('dues')}>Balance <span className="sort-icon" id="sort-dues">{sortCol === 'dues' ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}</span></th>
                 <th>Last Sent</th>
                 <th style={{}}>Broadcast</th>
                 <th style={{}}>Actions</th>
@@ -120,8 +152,8 @@ export default function TablePanel() {
             <tbody id="table-body">
               {loading ? (
                 <tr><td colSpan={10} style={{ textAlign: 'center', padding: '20px' }}>Loading data...</td></tr>
-              ) : filteredMembers.length > 0 ? (
-                filteredMembers.map((member: any) => {
+              ) : sortedMembers.length > 0 ? (
+                sortedMembers.map((member: any) => {
                   const today = new Date().toISOString().slice(0, 10);
                   const isExpired = member.expiry_date < today;
                   
@@ -153,13 +185,13 @@ export default function TablePanel() {
 
                   return (
                     <tr key={member.id}>
-                      <td><strong>{member.name}</strong>{isBday && <span className="bday-icon">🎂</span>}{member.renewal_streak > 0 && <span className="streak-badge" title={`${member.renewal_streak} renewal streak`}>🔥{member.renewal_streak}</span>}</td>
-                      <td>{member.phone || '-'}</td>
-                      <td><span className={`plan-badge plan-${member.membership_type.toLowerCase()}`}>{member.membership_type}</span></td>
-                      <td>{member.has_personal_trainer && member.trainer_name ? <span className="trainer-badge">{member.trainer_name}</span> : <span className="no-trainer">—</span>}</td>
-                      <td><span className={`badge ${badgeClass}`}>{badgeText}</span></td>
-                      <td>{member.expiry_date}</td>
-                      <td>
+                      <td data-label="Member"><strong>{member.name}</strong>{isBday && <span className="bday-icon">🎂</span>}{member.renewal_streak > 0 && <span className="streak-badge" title={`${member.renewal_streak} renewal streak`}>🔥{member.renewal_streak}</span>}</td>
+                      <td data-label="Phone">{member.phone || '-'}</td>
+                      <td data-label="Plan"><span className={`plan-badge plan-${member.membership_type.toLowerCase()}`}>{member.membership_type}</span></td>
+                      <td data-label="Trainer">{member.has_personal_trainer && member.trainer_name ? <span className="trainer-badge">{member.trainer_name}</span> : <span className="no-trainer">—</span>}</td>
+                      <td data-label="Status"><span className={`badge ${badgeClass}`}>{badgeText}</span></td>
+                      <td data-label="Expiry">{member.expiry_date}</td>
+                      <td data-label="Dues">
                         {balance > 0 ? (
                           <button className="balance-btn danger" onClick={() => {
                             setSelectedMember(member);
@@ -175,8 +207,8 @@ export default function TablePanel() {
                           </span>
                         )}
                       </td>
-                      <td>{member.last_contacted ? new Date(member.last_contacted).toLocaleDateString() : '-'}</td>
-                      <td style={{textAlign: 'center'}}>
+                      <td data-label="Follow up">{member.last_contacted ? new Date(member.last_contacted).toLocaleDateString() : '-'}</td>
+                      <td data-label="Action">
                         <button className={`wa-btn ${waBtnClass}`} onClick={() => {
                           setSelectedMember(member);
                           setIsBroadcastOpen(true);
@@ -185,7 +217,7 @@ export default function TablePanel() {
                           {waBtnText}
                         </button>
                       </td>
-                      <td style={{textAlign: 'center'}}>
+                      <td data-label="Manage">
                         <div className="row-actions">
                           <button className="icon-btn" onClick={() => handleGenerateBill(member)} title="Download Bill & Send WA">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>

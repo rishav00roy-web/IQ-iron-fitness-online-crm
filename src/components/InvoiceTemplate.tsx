@@ -1,10 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
-  Phone,
-  Globe,
-  Mail,
-  MapPin
-} from "lucide-react";
+import React, { useState } from "react";
+import { numberToWords } from "@/lib/numberToWords";
 
 // Indian numbering style currency formatting
 const formatCurrency = (n: number) =>
@@ -12,40 +7,14 @@ const formatCurrency = (n: number) =>
     n || 0
   );
 
-// Number to Words Converter (Indian Currency Style)
-function numberToWords(num: number): string {
-  const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-  const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-
-  const convert = (n: number): string => {
-    if (n < 20) return a[n];
-    if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
-    if (n < 1000) return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convert(n % 100) : '');
-    if (n < 100000) return convert(Math.floor(n / 1000)) + ' Thousand' + (n % 1000 !== 0 ? ' ' + convert(n % 1000) : '');
-    if (n < 10000000) return convert(Math.floor(n / 100000)) + ' Lakh' + (n % 100000 !== 0 ? ' ' + convert(n % 100000) : '');
-    return '';
-  };
-
-  const words = convert(Math.floor(num));
-  return words ? words + ' Rupees Only' : '';
-}
-
 export default function InvoiceTemplate({ member }: { member: any }) {
-  const [invoiceNumber, setInvoiceNumber] = useState("INV-37067");
-  const [invoiceDate, setInvoiceDate] = useState("27 JUL 2026");
-  const [dueDate, setDueDate] = useState("10 AUG 2026");
-
-  useEffect(() => {
-    if (member) {
-      setInvoiceNumber(`INV-${Math.floor(10000 + Math.random() * 90000)}`);
-      const today = new Date();
-      setInvoiceDate(today.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase());
-      
-      const due = new Date();
-      due.setDate(today.getDate() + 14); // Due in 14 days
-      setDueDate(due.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase());
-    }
-  }, [member]);
+  const [invoiceNumber] = useState(() => `INV-${Math.floor(10000 + Math.random() * 90000)}`);
+  const [invoiceDate] = useState(() => new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase());
+  const [dueDate] = useState(() => {
+    const due = new Date();
+    due.setDate(due.getDate() + 14);
+    return due.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
+  });
 
   const memberName = member?.name || "Member Name";
   const memberPhone = member?.phone || "N/A";

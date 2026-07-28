@@ -1,10 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
-  Phone,
-  Globe,
-  Mail,
-  MapPin
-} from "lucide-react";
+import React, { useState } from "react";
+import { numberToWords } from "@/lib/numberToWords";
 
 // Indian numbering style currency formatting
 const formatCurrency = (n: number) =>
@@ -12,38 +7,12 @@ const formatCurrency = (n: number) =>
     n || 0
   );
 
-// Number to Words Converter (Indian Currency Style)
-function numberToWords(num: number): string {
-  const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-  const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-
-  const convert = (n: number): string => {
-    if (n < 20) return a[n];
-    if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
-    if (n < 1000) return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + convert(n % 100) : '');
-    if (n < 100000) return convert(Math.floor(n / 1000)) + ' Thousand' + (n % 1000 !== 0 ? ' ' + convert(n % 1000) : '');
-    if (n < 10000000) return convert(Math.floor(n / 100000)) + ' Lakh' + (n % 100000 !== 0 ? ' ' + convert(n % 100000) : '');
-    return '';
-  };
-
-  const words = convert(Math.floor(num));
-  return words ? words + ' Rupees Only' : '';
-}
-
 export default function EmployeeSalaryTemplate({ trainerName, basicPay, ptClients }: { trainerName: string, basicPay: number, ptClients: any[] }) {
-  const [payslipNumber, setPayslipNumber] = useState("PS-37067");
-  const [payslipDate, setPayslipDate] = useState("27 JUL 2026");
-  const [period, setPeriod] = useState("JULY 2026");
+  const [payslipNumber] = useState(() => `PS-${Math.floor(10000 + Math.random() * 90000)}`);
+  const [payslipDate] = useState(() => new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase());
+  const [period] = useState(() => new Date().toLocaleDateString("en-GB", { month: "long", year: "numeric" }).toUpperCase());
 
-  useEffect(() => {
-    setPayslipNumber(`PS-${Math.floor(10000 + Math.random() * 90000)}`);
-    const today = new Date();
-    setPayslipDate(today.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase());
-    setPeriod(today.toLocaleDateString("en-GB", { month: "long", year: "numeric" }).toUpperCase());
-  }, []);
-
-  const totalClientFees = ptClients.reduce((sum, c) => sum + (c.total_fee || 0), 0);
-  const commission = totalClientFees * 0.2;
+  const commission = ptClients.reduce((sum, c) => sum + (c.pt_fee || 0), 0);
   const netSalary = basicPay + commission;
 
   return (
@@ -182,7 +151,7 @@ export default function EmployeeSalaryTemplate({ trainerName, basicPay, ptClient
               <tr className="bg-white">
                 <td className="py-4 px-3 border border-slate-200 align-top" style={{ padding: '16px 12px' }}>
                   <span className="font-bold text-slate-950 block text-[14px]">Personal Training Commission</span>
-                  <span className="text-slate-500 text-[11px] block mt-0.5">20% of total PT client fees (Total PT Revenue: ₹{totalClientFees.toLocaleString('en-IN')})</span>
+                  <span className="text-slate-500 text-[11px] block mt-0.5">Sum of PT fees for {ptClients.length} assigned clients</span>
                 </td>
                 <td className="py-4 px-3 border border-slate-200 text-right font-mono align-top" style={{ padding: '16px 12px' }}>
                   {commission.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -201,7 +170,7 @@ export default function EmployeeSalaryTemplate({ trainerName, basicPay, ptClient
             <div className="flex flex-wrap gap-2">
               {ptClients.map((c, i) => (
                 <span key={i} className="text-[9px] bg-slate-100 text-slate-600 px-2 py-1 rounded border border-slate-200">
-                  {c.name} (₹{c.total_fee})
+                  {c.name}
                 </span>
               ))}
             </div>

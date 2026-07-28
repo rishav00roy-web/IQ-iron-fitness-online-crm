@@ -35,6 +35,8 @@ const Modal = ({ isOpen, onClose, id, children }: { isOpen: boolean, onClose: ()
 
 export default function Dialogs() {
   const { 
+    members,
+    trainers, addTrainer, deleteTrainer,
     isAddOpen, setIsAddOpen, 
     isBroadcastOpen, setIsBroadcastOpen,
     isBroadcastAllOpen, setIsBroadcastAllOpen,
@@ -43,15 +45,17 @@ export default function Dialogs() {
     isSettingsOpen, setIsSettingsOpen,
     isDeleteOpen, setIsDeleteOpen,
     isPaymentsOpen, setIsPaymentsOpen,
-    selectedMember, setSelectedMember,
+    selectedMember,
     fetchMembers
   } = useCRM();
 
   const [addForm, setAddForm] = useState({
     name: "", phone: "", dob: "", membership_type: "monthly",
     start_date: "", expiry_date: "", has_personal_trainer: "no",
-    trainer_name: "", total_fee: 0, paid_now: 0, balance_due: 0, notes: ""
+    trainer_id: "", pt_fee: 0, total_fee: 0, paid_now: 0, balance_due: 0, notes: ""
   });
+
+  const [newTrainerName, setNewTrainerName] = useState("");
 
   const handleAddChange = (field: string, value: any) => {
     setAddForm(prev => {
@@ -79,6 +83,10 @@ export default function Dialogs() {
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!addForm.name.trim()) {
+      alert("Please enter a member name");
+      return;
+    }
     const newMember = {
       name: addForm.name,
       phone: addForm.phone,
@@ -87,7 +95,8 @@ export default function Dialogs() {
       start_date: addForm.start_date || null,
       expiry_date: addForm.expiry_date || null,
       has_personal_trainer: addForm.has_personal_trainer === 'yes',
-      trainer_name: addForm.trainer_name,
+      trainer_id: addForm.has_personal_trainer === 'yes' ? (addForm.trainer_id || null) : null,
+      pt_fee: addForm.has_personal_trainer === 'yes' ? (parseFloat(addForm.pt_fee as any) || 0) : 0,
       total_fee: parseFloat(addForm.total_fee as any) || 0,
       pending_amount: parseFloat(addForm.balance_due as any) || 0,
       renewal_streak: 0,
@@ -104,15 +113,13 @@ export default function Dialogs() {
     
     setIsAddOpen(false);
     fetchMembers();
-    // Reset form
     setAddForm({
       name: "", phone: "", dob: "", membership_type: "monthly",
       start_date: "", expiry_date: "", has_personal_trainer: "no",
-      trainer_name: "", total_fee: 0, paid_now: 0, balance_due: 0, notes: ""
+      trainer_id: "", pt_fee: 0, total_fee: 0, paid_now: 0, balance_due: 0, notes: ""
     });
   };
 
-  
   const [editForm, setEditForm] = useState<any>({});
   
   useEffect(() => {
@@ -135,7 +142,6 @@ export default function Dialogs() {
     e.preventDefault();
     if (!selectedMember) return;
     
-    // Calculate new payment
     const addPayment = parseFloat(editForm.add_payment) || 0;
     const newPending = Math.max(0, parseFloat(editForm.pending_amount) - addPayment);
     
@@ -147,7 +153,8 @@ export default function Dialogs() {
       start_date: editForm.start_date || null,
       expiry_date: editForm.expiry_date || null,
       has_personal_trainer: editForm.has_personal_trainer,
-      trainer_name: editForm.trainer_name,
+      trainer_id: editForm.has_personal_trainer ? (editForm.trainer_id || null) : null,
+      pt_fee: editForm.has_personal_trainer ? (parseFloat(editForm.pt_fee) || 0) : 0,
       total_fee: parseFloat(editForm.total_fee) || 0,
       pending_amount: newPending,
       renewal_streak: parseInt(editForm.renewal_streak) || 0,
@@ -176,14 +183,43 @@ export default function Dialogs() {
     fetchMembers();
   };
   
+  const [broadcastAllFilter, setBroadcastAllFilter] = useState('all');
+  const [broadcastAllMessage, setBroadcastAllMessage] = useState('');
+
   const handleBroadcastAll = () => {
-    const msg = (document.getElementById("broadcast-all-message") as HTMLTextAreaElement)?.value || "Hello from IQ Iron Fitness!";
-    const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    if (!broadcastAllMessage) {
+      alert("Please enter a message.");
+      return;
+    }
+    const url = `https://wa.me/?text=${encodeURIComponent(broadcastAllMessage)}`;
     window.open(url, "_blank");
     setIsBroadcastAllOpen(false);
   };
   
-  // --- Settings State ---
+  const broadcastAllCount = React.useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    return members.filter(m => {
+      switch(broadcastAllFilter) {
+        case 'active':
+          if (m.expiry_date < today) return false;
+          break;
+        case 'expiring':
+          const in7Days = new Date();
+          in7Days.setDate(in7Days.getDate() + 7);
+          const nextWeek = in7Days.toISOString().slice(0, 10);
+          if (m.expiry_date < today || m.expiry_date > nextWeek) return false;
+          break;
+        case 'expired':
+          if (m.expiry_date >= today) return false;
+          break;
+        case 'dues':
+          if (m.pending_amount <= 0) return false;
+          break;
+      }
+      return true;
+    }).length;
+  }, [members, broadcastAllFilter]);
+  
   const defaultTemplates = {
     expiry: "Hi {{name}}, your gym membership is expiring on {{expiry_date}}. Please renew.",
     dues: "Hi {{name}}, you have pending dues of ₹{{due_amount}}. Please clear them.",
@@ -208,7 +244,9 @@ export default function Dialogs() {
           templates: { ...prev.templates, ...(parsed.templates || {}) },
           system: { ...prev.system, ...(parsed.system || {}) }
         }));
-      } catch (e) {}
+      } catch {
+        // ignore JSON parse error
+      }
     }
   }, []);
 
@@ -239,21 +277,31 @@ export default function Dialogs() {
     );
   };
   
+  const [bMessageType, setBMessageType] = useState<keyof typeof defaultTemplates>('expiry');
+  const [bMessageText, setBMessageText] = useState('');
+
+  const defaultBMessageText = React.useMemo(() => {
+    if (!selectedMember) return '';
+    const text = settings.templates[bMessageType] || `Hi {{name}}!`;
+    return text
+      .replace(/{{name}}/g, selectedMember.name || '')
+      .replace(/{{expiry_date}}/g, selectedMember.expiry_date || '')
+      .replace(/{{start_date}}/g, selectedMember.start_date || '')
+      .replace(/{{due_amount}}/g, (selectedMember.pending_amount || 0).toString())
+      .replace(/{{membership_type}}/g, selectedMember.membership_type || '')
+      .replace(/{{trainer_name}}/g, selectedMember.trainer_name || '')
+      .replace(/{{trainer_line}}/g, selectedMember.has_personal_trainer ? `Your trainer ${selectedMember.trainer_name} is waiting.` : '');
+  }, [selectedMember, bMessageType, settings.templates]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (isBroadcastOpen) setBMessageText('');
+  }, [isBroadcastOpen]);
+
   const handleBroadcast = (e: React.FormEvent) => {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const msgType = (form.elements.namedItem("b-message-type") as HTMLSelectElement).value as keyof typeof defaultTemplates;
-    
-    let text = settings.templates[msgType] || `Hi {{name}}!`;
-    
-    text = text
-      .replace(/{{name}}/g, selectedMember?.name || '')
-      .replace(/{{expiry_date}}/g, selectedMember?.expiry_date || '')
-      .replace(/{{start_date}}/g, selectedMember?.start_date || '')
-      .replace(/{{due_amount}}/g, (selectedMember?.pending_amount || 0).toString())
-      .replace(/{{membership_type}}/g, selectedMember?.membership_type || '')
-      .replace(/{{trainer_name}}/g, selectedMember?.trainer_name || '')
-      .replace(/{{trainer_line}}/g, selectedMember?.has_personal_trainer ? `Your trainer ${selectedMember?.trainer_name} is waiting.` : '');
+    const finalMessage = bMessageText || defaultBMessageText;
+    if (!finalMessage) return;
     
     const phone = selectedMember?.phone || '';
     if (!phone) {
@@ -261,7 +309,13 @@ export default function Dialogs() {
       return;
     }
     
-    const url = `https://wa.me/${settings.system.countryCode.replace('+', '')}${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(text)}`;
+    const encoded = encodeURIComponent(finalMessage);
+    let cleanPhone = phone.replace(/[^0-9]/g, '');
+    let cc = settings.system.countryCode.replace('+', '');
+    if (cleanPhone.startsWith(cc) && cleanPhone.length > 10) {
+      cleanPhone = cleanPhone.substring(cc.length);
+    }
+    const url = `https://wa.me/${cc}${cleanPhone}?text=${encoded}`;
     window.open(url, '_blank');
     setIsBroadcastOpen(false);
   };
@@ -324,13 +378,28 @@ export default function Dialogs() {
 <option value="yes">Has PT</option>
 </select>
 </div>
-<div className="form-group" id="add-trainer-group" style={{}}>
-<label className="form-label">Trainer Name</label>
-<select className="form-select" id="add-trainer-name" name="add-trainer-name" value={addForm.trainer_name} onChange={(e) => handleAddChange('trainer_name', e.target.value)}>
-<option value="">— Select Trainer —</option>
-</select>
+{addForm.has_personal_trainer === 'yes' && (
+  <div className="form-group" id="add-trainer-group" style={{}}>
+  <label className="form-label">Trainer Name</label>
+  <select className="form-select" id="add-trainer-name" name="add-trainer-name" value={addForm.trainer_id} onChange={(e) => handleAddChange('trainer_id', e.target.value)}>
+  <option value="">— Select Trainer —</option>
+  {trainers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+  </select>
+  </div>
+)}
 </div>
-</div>
+{addForm.has_personal_trainer === 'yes' && (
+  <div className="form-row-2">
+    <div className="form-group">
+      <label className="form-label">PT Fee <span className="req">*</span></label>
+      <div className="input-prefix-wrap">
+        <span className="input-prefix currency-prefix">₹</span>
+        <input className="form-input prefixed" id="add-pt-fee" min="0" placeholder="0" type="number" value={addForm.pt_fee || ''} onChange={(e) => handleAddChange('pt_fee', e.target.value)}/>
+      </div>
+    </div>
+    <div></div>
+  </div>
+)}
 <div className="form-divider"><span>Payment</span></div>
 <div className="form-row-3">
 <div className="form-group">
@@ -422,15 +491,29 @@ export default function Dialogs() {
 <option value="yes">Has PT</option>
 </select>
 </div>
-<div className="form-group" id="edit-trainer-group" style={{}}>
-<label className="form-label">Trainer Name</label>
-<select id="edit-trainer-name"  value={editForm.trainer_name || ""} onChange={(e) => handleEditChange("trainer_name", e.target.value)}>
-<option value="">— Select Trainer —</option>
-</select>
+{editForm.has_personal_trainer && (
+  <div className="form-group" id="edit-trainer-group" style={{}}>
+  <label className="form-label">Trainer Name</label>
+  <select id="edit-trainer-name"  value={editForm.trainer_id || ""} onChange={(e) => handleEditChange("trainer_id", e.target.value)}>
+  <option value="">— Select Trainer —</option>
+  {trainers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+  </select>
+  </div>
+)}
 </div>
-</div>
-<div className="form-divider"><span>Payment Ledger</span></div>
-<div className="payment-ledger" id="edit-payment-ledger"></div>
+{editForm.has_personal_trainer && (
+  <div className="form-row-2">
+    <div className="form-group">
+      <label className="form-label">PT Fee <span className="req">*</span></label>
+      <div className="input-prefix-wrap">
+        <span className="input-prefix currency-prefix">₹</span>
+        <input id="edit-pt-fee" min="0" placeholder="0" type="number" value={editForm.pt_fee || ''} onChange={(e) => handleEditChange('pt_fee', e.target.value)}/>
+      </div>
+    </div>
+    <div></div>
+  </div>
+)}
+
 <div className="form-row-3">
 <div className="form-group">
 <label className="form-label">Total Fee</label>
@@ -484,11 +567,17 @@ export default function Dialogs() {
 </button>
 </div>
 <div className="dialog-body">
-<div className="pay-summary-bar" id="pay-summary-bar"></div>
-<div className="pay-history-list" id="pay-history-list"></div>
+<div className="pay-summary-bar" id="pay-summary-bar">
+  <div style={{ display: 'flex', gap: '1rem', justifyContent: 'space-between', background: 'var(--surface-2)', padding: '1rem', borderRadius: '8px' }}>
+    <div><strong>Total Fee:</strong> ₹{selectedMember?.total_fee || 0}</div>
+    <div><strong>Paid:</strong> ₹{(selectedMember?.total_fee || 0) - (selectedMember?.pending_amount || 0)}</div>
+    <div style={{ color: (selectedMember?.pending_amount || 0) > 0 ? 'var(--danger)' : 'var(--success)' }}><strong>Pending:</strong> ₹{selectedMember?.pending_amount || 0}</div>
+  </div>
+</div>
+
 </div>
 <div className="dialog-actions">
-<button className="btn btn-ghost close-dialog" data-dialog="dialog-payments">Close</button>
+<button type="button" className="btn btn-ghost close-dialog" onClick={() => setIsPaymentsOpen(false)}>Close</button>
 </div>
 </Modal>
 <Modal id="dialog-broadcast" isOpen={isBroadcastOpen} onClose={() => setIsBroadcastOpen(false)}>
@@ -502,11 +591,33 @@ export default function Dialogs() {
 </button>
 </div>
 <div className="dialog-body">
+<form id="form-broadcast" onSubmit={handleBroadcast}>
+<div className="form-group">
+<label className="form-label">Template</label>
+<select
+  className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white"
+  value={bMessageType}
+  onChange={(e) => {
+    setBMessageType(e.target.value as keyof typeof defaultTemplates);
+    setBMessageText('');
+  }}
+>
+  <option value="expiry">Membership Renewal</option>
+  <option value="dues">Payment Due</option>
+  <option value="birthday">Birthday Greeting</option>
+  <option value="welcome">New Joiner Welcome</option>
+</select>
+</div>
 <div className="form-group">
 <label className="form-label">Custom Message</label>
-<textarea className="form-textarea" id="broadcast-message" rows={6}></textarea>
+<textarea
+  className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm h-32 text-white"
+  value={bMessageText || defaultBMessageText}
+  onChange={(e) => setBMessageText(e.target.value)}
+></textarea>
 <span className="form-hint">Pre-filled from template. Edit freely before sending.</span>
 </div>
+</form>
 </div>
 <div className="dialog-actions">
 <button type="button" className="btn btn-ghost close-dialog" onClick={() => setIsBroadcastOpen(false)}>Cancel</button>
@@ -538,11 +649,36 @@ export default function Dialogs() {
 </button>
 </div>
 <div className="dialog-body">
-<div className="trainer-add-row">
-<input className="form-input" id="new-trainer-name" placeholder="Trainer full name" style={{}} type="text"/>
-<button className="btn btn-primary" id="btn-add-trainer">Add</button>
+<form className="trainer-add-row" onSubmit={async (e) => {
+  e.preventDefault();
+  if (!newTrainerName.trim()) {
+    alert("Please enter a trainer name");
+    return;
+  }
+  const ok = await addTrainer(newTrainerName);
+  if (ok) setNewTrainerName('');
+}}>
+<input 
+  className="form-input" 
+  placeholder="Trainer full name" 
+  style={{}} 
+  type="text"
+  value={newTrainerName}
+  onChange={(e) => setNewTrainerName(e.target.value)}
+/>
+<button type="submit" className="btn btn-primary" id="btn-add-trainer">Add</button>
+</form>
+<div className="trainer-list" id="trainer-list" style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+  {trainers.map(t => (
+    <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-2)', padding: '0.5rem 1rem', borderRadius: '4px' }}>
+      <span>{t.name}</span>
+      <button type="button" className="icon-btn delete" onClick={() => deleteTrainer(t.id)}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"/></svg>
+      </button>
+    </div>
+  ))}
+  {trainers.length === 0 && <p style={{ color: 'var(--text-3)' }}>No trainers added yet.</p>}
 </div>
-<div className="trainer-list" id="trainer-list"></div>
 </div>
 <div className="dialog-actions">
 <button type="button" className="btn btn-ghost close-dialog" onClick={() => setIsTrainersOpen(false)}>Done</button>
@@ -626,7 +762,7 @@ export default function Dialogs() {
 <div className="dialog-body">
 <div className="form-group">
 <label className="form-label">Reference Group</label>
-<select className="form-select" id="broadcast-all-filter">
+<select className="form-select" id="broadcast-all-filter" value={broadcastAllFilter} onChange={(e) => setBroadcastAllFilter(e.target.value)}>
 <option value="all">All Members</option>
 <option value="active">Active Members</option>
 <option value="expiring">Expiring Soon</option>
@@ -636,10 +772,12 @@ export default function Dialogs() {
 </div>
 <div className="form-group" style={{}}>
 <label className="form-label">Custom Message <span className="req">*</span></label>
-<textarea className="form-textarea" id="broadcast-all-message" placeholder="Type your custom group message here..." rows={7}></textarea>
+<textarea className="form-textarea" id="broadcast-all-message" placeholder="Type your custom group message here..." rows={7} value={broadcastAllMessage} onChange={(e) => setBroadcastAllMessage(e.target.value)}></textarea>
 <span className="form-hint">Opens one WhatsApp screen. Choose any person, gym group, or community there.</span>
 </div>
-<div id="broadcast-all-count" style={{}}></div>
+<div id="broadcast-all-count" style={{ marginTop: '1rem', color: 'var(--brand)' }}>
+  Addressing <strong>{broadcastAllCount}</strong> members.
+</div>
 </div>
 <div className="dialog-actions">
 <button type="button" className="btn btn-ghost close-dialog" onClick={() => setIsBroadcastAllOpen(false)}>Cancel</button>

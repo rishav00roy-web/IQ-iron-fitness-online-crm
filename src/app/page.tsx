@@ -8,7 +8,7 @@ import Dialogs from '@/components/Dialogs';
 import { CRMProvider, useCRM } from '@/context/CRMContext';
 
 function AppContent() {
-  const { selectedMember } = useCRM();
+  useCRM();
   
   return (
     <div className="app">

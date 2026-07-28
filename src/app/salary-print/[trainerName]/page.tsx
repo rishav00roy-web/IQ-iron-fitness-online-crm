@@ -6,11 +6,12 @@ import { supabase } from "@/lib/supabase";
 import EmployeeSalaryTemplate from "@/components/EmployeeSalaryTemplate";
 
 export default function PrintSalaryPage() {
-  const { trainerName } = useParams();
+  const { trainerName: paramId } = useParams();
   const searchParams = useSearchParams();
-  const decodedTrainerName = decodeURIComponent(trainerName as string);
+  const trainerId = decodeURIComponent(paramId as string);
   const basicPay = Number(searchParams.get("basicPay")) || 0;
   
+  const [actualTrainerName, setActualTrainerName] = useState<string>("Unknown Trainer");
   const [ptClients, setPtClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,19 +31,24 @@ export default function PrintSalaryPage() {
           }
         ];
         const clients = mockMembers.filter(
-          (m) => m.has_personal_trainer && m.trainer_name === decodedTrainerName
+          (m) => m.has_personal_trainer && m.trainer_name === actualTrainerName
         );
         setPtClients(clients);
         setLoading(false);
         return;
       }
 
+      if (!trainerId) return;
+      
       try {
+        const { data: tData } = await supabase.from('trainers').select('name').eq('id', trainerId).single();
+        if (tData) setActualTrainerName(tData.name);
+
         const { data, error } = await supabase
           .from("members")
           .select("*")
           .eq("has_personal_trainer", true)
-          .eq("trainer_name", decodedTrainerName);
+          .eq("trainer_id", trainerId);
 
         if (error) throw error;
         setPtClients(data || []);
@@ -53,10 +59,11 @@ export default function PrintSalaryPage() {
       }
     }
 
-    if (decodedTrainerName) {
+    if (trainerId) {
       fetchClients();
     }
-  }, [decodedTrainerName]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, trainerId]);
 
   useEffect(() => {
     if (!loading) {
@@ -77,7 +84,7 @@ export default function PrintSalaryPage() {
       <div className="origin-top transform scale-[0.5] sm:scale-[0.7] md:scale-[0.8] lg:scale-100 print:scale-100 transition-transform print:transform-none">
         <div className="w-[794px] max-w-full min-h-[1123px] bg-white shadow-2xl print:shadow-none print:w-full print:min-h-0">
           <EmployeeSalaryTemplate 
-            trainerName={decodedTrainerName} 
+            trainerName={actualTrainerName} 
             basicPay={basicPay} 
             ptClients={ptClients} 
           />

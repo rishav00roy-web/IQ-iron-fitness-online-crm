@@ -12,7 +12,9 @@ type Member = {
   start_date: string;
   expiry_date: string;
   has_personal_trainer: boolean;
-  trainer_name?: string;
+  trainer_id?: string;
+  trainer_name?: string; // Virtual property, populated by join
+  pt_fee?: number;
   total_fee: number;
   pending_amount: number;
   last_contacted?: string;
@@ -21,10 +23,19 @@ type Member = {
   created_at: string;
 };
 
+export type Trainer = {
+  id: string;
+  name: string;
+};
+
 type CRMContextType = {
   members: Member[];
+  trainers: Trainer[];
   loading: boolean;
   fetchMembers: () => Promise<void>;
+  fetchTrainers: () => Promise<void>;
+  addTrainer: (name: string) => Promise<boolean>;
+  deleteTrainer: (id: string) => Promise<boolean>;
   
   // UI State
   isAddOpen: boolean;
@@ -57,6 +68,7 @@ const CRMContext = createContext<CRMContextType | undefined>(undefined);
 
 export function CRMProvider({ children }: { children: ReactNode }) {
   const [members, setMembers] = useState<Member[]>([]);
+  const [trainers, setTrainers] = useState<Trainer[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -73,6 +85,50 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
 
+  const fetchTrainers = async () => {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      setTrainers([
+        { id: "t1", name: "Rahul" },
+        { id: "t2", name: "Vikram" }
+      ]);
+      return;
+    }
+    const { data, error } = await supabase.from('trainers').select('*').order('name');
+    if (!error && data) {
+      setTrainers(data);
+    }
+  };
+
+  const addTrainer = async (name: string) => {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      setTrainers(prev => [...prev, { id: Date.now().toString(), name }]);
+      return true;
+    }
+    const { error } = await supabase.from('trainers').insert([{ name }]);
+    if (!error) {
+      fetchTrainers();
+      return true;
+    }
+    console.error("Error adding trainer:", error);
+    alert("Failed to add trainer. Please check database permissions.");
+    return false;
+  };
+
+  const deleteTrainer = async (id: string) => {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      setTrainers(prev => prev.filter(t => t.id !== id));
+      return true;
+    }
+    const { error } = await supabase.from('trainers').delete().eq('id', id);
+    if (!error) {
+      fetchTrainers();
+      return true;
+    }
+    console.error("Error deleting trainer:", error);
+    alert("Failed to delete trainer. Please check database permissions or associated members.");
+    return false;
+  };
+
   const fetchMembers = async () => {
     setLoading(true);
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
@@ -81,7 +137,7 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         {
           id: "1", name: "Raj Sharma", phone: "9876543210", dob: "1990-05-15",
           membership_type: "Monthly", start_date: "2026-06-25", expiry_date: "2026-07-25",
-          has_personal_trainer: true, trainer_name: "Rahul", total_fee: 1500, pending_amount: 500,
+          has_personal_trainer: true, trainer_id: "t1", trainer_name: "Rahul", pt_fee: 300, total_fee: 1500, pending_amount: 500,
           renewal_streak: 2, created_at: "2026-06-25T10:00:00Z"
         },
         {
@@ -93,7 +149,7 @@ export function CRMProvider({ children }: { children: ReactNode }) {
         {
           id: "3", name: "Amit Kumar", phone: "9988776655", dob: "1988-12-05",
           membership_type: "Yearly", start_date: "2025-07-20", expiry_date: "2026-07-20",
-          has_personal_trainer: true, trainer_name: "Vikram", total_fee: 12000, pending_amount: 0,
+          has_personal_trainer: true, trainer_id: "t2", trainer_name: "Vikram", pt_fee: 2400, total_fee: 12000, pending_amount: 0,
           renewal_streak: 1, created_at: "2025-07-20T11:15:00Z"
         },
         {
@@ -106,17 +162,22 @@ export function CRMProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       return;
     }
-    const { data, error } = await supabase.from('members').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('members').select('*, trainers(name)').order('created_at', { ascending: false });
     if (error) {
       console.error('Error fetching members:', error);
     } else {
-      setMembers(data || []);
+      const flattenedData = (data || []).map((m: any) => ({
+        ...m,
+        trainer_name: m.trainers?.name || undefined
+      }));
+      setMembers(flattenedData);
     }
     setLoading(false);
   };
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchTrainers();
     fetchMembers();
 
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return;
@@ -136,7 +197,7 @@ export function CRMProvider({ children }: { children: ReactNode }) {
 
   return (
     <CRMContext.Provider value={{
-      members, loading, fetchMembers,
+      members, trainers, loading, fetchMembers, fetchTrainers, addTrainer, deleteTrainer,
       isAddOpen, setIsAddOpen,
       isBroadcastOpen, setIsBroadcastOpen,
       isBroadcastAllOpen, setIsBroadcastAllOpen,

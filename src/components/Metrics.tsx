@@ -21,7 +21,9 @@ export default function Metrics() {
 
     members.forEach(m => {
       // Expiry status
-      if (m.expiry_date >= today && m.expiry_date <= nextWeek) {
+      if (!m.expiry_date) {
+        active++;
+      } else if (m.expiry_date >= today && m.expiry_date <= nextWeek) {
         expiring++;
         active++;
       } else if (m.expiry_date >= today) {

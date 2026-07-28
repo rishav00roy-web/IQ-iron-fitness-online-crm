@@ -1,16 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { CRMProvider, useCRM } from "@/context/CRMContext";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import { Dumbbell, DollarSign, FileText, ArrowLeft, Users } from "lucide-react";
 
 function SalaryContent() {
-  const { members, loading } = useCRM();
+  const { members, trainers: contextTrainers, loading, setIsTrainersOpen } = useCRM();
   const router = useRouter();
 
-  // Extract trainers and their clients
+  const currentPeriod = useMemo(() => new Date().toISOString().slice(0, 7), []); // YYYY-MM
+
   const [trainers, setTrainers] = useState<{
+    id: string;
     name: string;
     clients: any[];
     commission: number;
@@ -18,33 +21,35 @@ function SalaryContent() {
   }[]>([]);
 
   useEffect(() => {
-    if (!loading && members.length > 0) {
-      const trainerMap: Record<string, any[]> = {};
+    async function loadPayroll() {
+      if (loading) return;
+      
+      const { data: payrollData } = await supabase
+        .from('payroll')
+        .select('*')
+        .eq('period', currentPeriod);
+      
+      const payrollMap = (payrollData || []).reduce((acc: any, p: any) => {
+        acc[p.trainer_id] = p.basic_pay;
+        return acc;
+      }, {});
 
-      members.forEach((m) => {
-        if (m.has_personal_trainer && m.trainer_name && m.trainer_name.trim() !== "") {
-          const tName = m.trainer_name.trim();
-          if (!trainerMap[tName]) {
-            trainerMap[tName] = [];
-          }
-          trainerMap[tName].push(m);
-        }
-      });
-
-      const trainerList = Object.keys(trainerMap).map((tName) => {
-        const clients = trainerMap[tName];
-        const totalClientFees = clients.reduce((sum, c) => sum + (c.total_fee || 0), 0);
+      const trainerList = contextTrainers.map((t) => {
+        const clients = members.filter(m => m.has_personal_trainer && m.trainer_id === t.id);
+        const commission = clients.reduce((sum, c) => sum + (c.pt_fee || 0), 0);
         return {
-          name: tName,
+          id: t.id,
+          name: t.name,
           clients,
-          commission: totalClientFees * 0.2, // 20% commission
-          basicPay: 10000, // Default basic pay
+          commission,
+          basicPay: payrollMap[t.id] ?? 10000, // Default basic pay
         };
       });
 
       setTrainers(trainerList);
     }
-  }, [members, loading]);
+    loadPayroll();
+  }, [members, contextTrainers, loading, currentPeriod]);
 
   const handleBasicPayChange = (index: number, val: string) => {
     const updated = [...trainers];
@@ -52,8 +57,16 @@ function SalaryContent() {
     setTrainers(updated);
   };
 
-  const handleGeneratePayslip = (trainerName: string, basicPay: number) => {
-    router.push(`/salary-print/${encodeURIComponent(trainerName)}?basicPay=${basicPay}`);
+  const handleGeneratePayslip = async (trainerId: string, trainerName: string, basicPay: number, commission: number) => {
+    await supabase.from('payroll').upsert({
+      trainer_id: trainerId,
+      period: currentPeriod,
+      basic_pay: basicPay,
+      commission: commission,
+      total_salary: basicPay + commission
+    }, { onConflict: 'trainer_id,period' });
+    
+    router.push(`/salary-print/${trainerId}?basicPay=${basicPay}`);
   };
 
   return (
@@ -74,7 +87,7 @@ function SalaryContent() {
           </div>
           <div className="brand-text">
             <h1>Employee Salary</h1>
-            <span className="brand-sub">Generate Payslips based on Basic Pay + 20% PT Commission</span>
+            <span className="brand-sub">Payslips · Basic Pay + PT Commission</span>
           </div>
         </div>
       </header>
@@ -92,13 +105,22 @@ function SalaryContent() {
         <div className="panel empty-state">
           <Users />
           <h4>No Trainers Found</h4>
-          <p>Assign members to personal trainers to see them here.</p>
+          <p style={{ marginBottom: '1rem' }}>Assign members to personal trainers to see them here.</p>
+          <button 
+            className="btn btn-primary"
+            onClick={() => {
+              router.push('/');
+              setTimeout(() => setIsTrainersOpen(true), 100);
+            }}
+          >
+            Manage Trainers
+          </button>
         </div>
       )}
 
       {/* Trainers List */}
       {!loading && trainers.length > 0 && (
-        <div className="metrics-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
+        <div className="metrics-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))' }}>
           {trainers.map((t, idx) => {
             const totalSalary = t.basicPay + t.commission;
             
@@ -148,10 +170,11 @@ function SalaryContent() {
                 {/* Actions */}
                 <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid var(--border-1)', background: 'var(--bg-2)' }}>
                   <button 
-                    onClick={() => handleGeneratePayslip(t.name, t.basicPay)}
-                    className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}
+                    className="btn btn-primary" 
+                    style={{ width: '100%', justifyContent: 'center', gap: '0.5rem' }}
+                    onClick={() => handleGeneratePayslip(t.id, t.name, t.basicPay, t.commission)}
                   >
-                    <FileText style={{ width: '16px', height: '16px', marginRight: '6px' }} />
+                    <FileText size={16} />
                     Generate Payslip
                   </button>
                 </div>
