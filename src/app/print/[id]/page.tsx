@@ -13,6 +13,7 @@ export default function PrintInvoicePage() {
   const [loading, setLoading] = useState(true);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
   const [isIOS, setIsIOS] = useState(false);
 
   const handleGeneratePDF = async () => {
@@ -28,6 +29,14 @@ export default function PrintInvoicePage() {
       
       // html-to-image bypasses custom CSS parsers and relies on the browser,
       // fixing modern CSS issues like Tailwind v4's oklch/lab colors
+      
+      // Safari/iOS workaround: render multiple times to ensure images and fonts are drawn
+      // The first render on iOS often yields a blank image or missing assets.
+      if (isIOS) {
+        await toJpeg(element, { quality: 1.0, pixelRatio: 2 });
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
       const dataUrl = await toJpeg(element, { 
         quality: 1.0, 
         pixelRatio: 2 
@@ -47,6 +56,7 @@ export default function PrintInvoicePage() {
       const blob = pdf.output("blob");
       const url = URL.createObjectURL(blob);
       setPdfUrl(url);
+      setPdfBlob(blob);
     } catch (err: any) {
       console.error("Failed to generate PDF", err);
       alert(`Failed to generate PDF: ${err?.message || err}`);
@@ -158,14 +168,44 @@ export default function PrintInvoicePage() {
       <div className="print:hidden flex flex-wrap justify-center gap-4 mb-6 mt-2 sticky top-4 z-50">
         {isIOS && (
           pdfUrl ? (
-            <a 
-              href={pdfUrl}
-              download={`Invoice_${member?.name?.replace(/\s+/g, "_") || "Member"}.pdf`}
+            <button 
+              onClick={async () => {
+                const fileName = `Invoice_${member?.name?.replace(/\s+/g, "_") || "Member"}.pdf`;
+                if (pdfBlob && navigator.share) {
+                  const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+                  // navigator.canShare is not supported in older iOS, so we just try to share
+                  try {
+                    if (navigator.canShare && !navigator.canShare({ files: [file] })) {
+                      throw new Error("Cannot share file");
+                    }
+                    await navigator.share({
+                      files: [file],
+                      title: fileName,
+                    });
+                    return;
+                  } catch (err: any) {
+                    console.log('Share failed or canceled', err);
+                    if (err.name !== 'AbortError') {
+                      // Fallback if share fails (but not if user just canceled)
+                      const a = document.createElement("a");
+                      a.href = pdfUrl;
+                      a.download = fileName;
+                      a.click();
+                    }
+                  }
+                } else {
+                  // Fallback
+                  const a = document.createElement("a");
+                  a.href = pdfUrl;
+                  a.download = fileName;
+                  a.click();
+                }
+              }}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-              Save PDF Now
-            </a>
+              Share / Save PDF
+            </button>
           ) : (
             <button 
               onClick={handleGeneratePDF} 
