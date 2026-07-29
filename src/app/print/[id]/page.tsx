@@ -10,8 +10,9 @@ export default function PrintInvoicePage() {
   const [member, setMember] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-  const handleDownloadPDF = async () => {
+  const handleGeneratePDF = async () => {
     try {
       setIsGeneratingPDF(true);
       const element = document.getElementById("invoice-template");
@@ -42,10 +43,13 @@ export default function PrintInvoicePage() {
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       
       pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`Invoice_${member?.name?.replace(/\s+/g, "_") || "Member"}.pdf`);
-    } catch (err) {
+      
+      const blob = pdf.output("blob");
+      const url = URL.createObjectURL(blob);
+      setPdfUrl(url);
+    } catch (err: any) {
       console.error("Failed to generate PDF", err);
-      alert("Failed to generate PDF. Please try printing instead.");
+      alert(`Failed to generate PDF: ${err?.message || err}`);
     } finally {
       const wrapper = document.getElementById("invoice-wrapper");
       if (wrapper) wrapper.style.transform = "";
@@ -152,20 +156,31 @@ export default function PrintInvoicePage() {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
           Print Invoice
         </button>
-        <button 
-          onClick={handleDownloadPDF} 
-          disabled={isGeneratingPDF}
-          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
-        >
-          {isGeneratingPDF ? (
-             <span className="animate-pulse">Generating PDF...</span>
-          ) : (
-            <>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-              Download PDF
-            </>
-          )}
-        </button>
+        {pdfUrl ? (
+          <a 
+            href={pdfUrl}
+            download={`Invoice_${member?.name?.replace(/\s+/g, "_") || "Member"}.pdf`}
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            Save PDF Now
+          </a>
+        ) : (
+          <button 
+            onClick={handleGeneratePDF} 
+            disabled={isGeneratingPDF}
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
+          >
+            {isGeneratingPDF ? (
+               <span className="animate-pulse">Preparing PDF...</span>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Prepare PDF
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Mobile scaling wrapper (only scales on screen, prints at 100%) */}
