@@ -13,6 +13,7 @@ export default function PrintInvoicePage() {
   const [loading, setLoading] = useState(true);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [isIOS, setIsIOS] = useState(false);
 
   const handleGeneratePDF = async () => {
     try {
@@ -57,6 +58,10 @@ export default function PrintInvoicePage() {
   };
 
   useEffect(() => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    setIsIOS(isIOSDevice);
+
     async function fetchMember() {
       if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
         // Fallback to mock data if no Supabase (same as CRMContext)
@@ -148,37 +153,42 @@ export default function PrintInvoicePage() {
     <div className="bg-slate-100 min-h-screen print:bg-white flex flex-col items-center p-4 print:p-0 overflow-x-auto print:block">
       {/* Floating Action Buttons for Print/Download */}
       <div className="print:hidden flex flex-wrap justify-center gap-4 mb-6 mt-2 sticky top-4 z-50">
-        <button 
-          onClick={() => window.print()} 
-          className="bg-[#0b337c] hover:bg-[#1e3a8a] text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-          Print Invoice
-        </button>
-        {pdfUrl ? (
-          <a 
-            href={pdfUrl}
-            download={`Invoice_${member?.name?.replace(/\s+/g, "_") || "Member"}.pdf`}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-            Save PDF Now
-          </a>
-        ) : (
+        {!isIOS && (
           <button 
-            onClick={handleGeneratePDF} 
-            disabled={isGeneratingPDF}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
+            onClick={() => window.print()} 
+            className="bg-[#0b337c] hover:bg-[#1e3a8a] text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors"
           >
-            {isGeneratingPDF ? (
-               <span className="animate-pulse">Preparing PDF...</span>
-            ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                Prepare PDF
-              </>
-            )}
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+            Print Invoice
           </button>
+        )}
+        
+        {isIOS && (
+          pdfUrl ? (
+            <a 
+              href={pdfUrl}
+              download={`Invoice_${member?.name?.replace(/\s+/g, "_") || "Member"}.pdf`}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+              Save PDF Now
+            </a>
+          ) : (
+            <button 
+              onClick={handleGeneratePDF} 
+              disabled={isGeneratingPDF}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
+            >
+              {isGeneratingPDF ? (
+                 <span className="animate-pulse">Preparing PDF...</span>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                  Prepare PDF
+                </>
+              )}
+            </button>
+          )
         )}
       </div>
 
