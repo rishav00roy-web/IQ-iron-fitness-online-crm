@@ -57,6 +57,7 @@ export default function PrintInvoicePage() {
     }
   };
 
+  useEffect(() => {
     async function fetchMember() {
       if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
         // Fallback to mock data if no Supabase (same as CRMContext)
