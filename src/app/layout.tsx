@@ -16,6 +16,7 @@ export const viewport: Viewport = {
   userScalable: true,
   viewportFit: "cover",  // Required for env(safe-area-inset-*) on iOS notch devices
   themeColor: "#0a0d15",
+  colorScheme: "dark",   // Tells iOS Safari all form controls should render in dark mode
 };
 
 export default function RootLayout({

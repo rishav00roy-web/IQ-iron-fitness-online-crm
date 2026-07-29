@@ -63,7 +63,7 @@
 
 /* ─── Reset ───────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; color-scheme: dark; }
 body {
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
@@ -492,6 +492,7 @@ select:-webkit-autofill {
 }
 
 dialog {
+  color-scheme: dark;
   color: var(--text-1);
   outline: none;
   background: rgba(13,17,28,0.98) !important;
