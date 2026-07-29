@@ -15,7 +15,12 @@ export default function PrintInvoicePage() {
     try {
       setIsGeneratingPDF(true);
       const element = document.getElementById("invoice-template");
+      const wrapper = document.getElementById("invoice-wrapper");
+      
       if (!element) return;
+
+      // Temporarily remove scaling so html2canvas captures at full resolution
+      if (wrapper) wrapper.style.transform = "scale(1)";
       
       const html2canvas = (await import("html2canvas")).default;
       const { jsPDF } = await import("jspdf");
@@ -42,6 +47,8 @@ export default function PrintInvoicePage() {
       console.error("Failed to generate PDF", err);
       alert("Failed to generate PDF. Please try printing instead.");
     } finally {
+      const wrapper = document.getElementById("invoice-wrapper");
+      if (wrapper) wrapper.style.transform = "";
       setIsGeneratingPDF(false);
     }
   };
@@ -162,7 +169,7 @@ export default function PrintInvoicePage() {
       </div>
 
       {/* Mobile scaling wrapper (only scales on screen, prints at 100%) */}
-      <div className="origin-top transform scale-[0.5] sm:scale-[0.7] md:scale-[0.8] lg:scale-100 print:scale-100 transition-transform print:transform-none">
+      <div id="invoice-wrapper" className="origin-top transform scale-[0.5] sm:scale-[0.7] md:scale-[0.8] lg:scale-100 print:scale-100 transition-transform print:transform-none">
         <div className="w-[794px] max-w-full min-h-[1123px] bg-white shadow-2xl print:shadow-none print:w-full print:min-h-0">
           <InvoiceTemplate member={member} />
         </div>

@@ -318,11 +318,19 @@ export default function InvoiceTemplate({ member }: { member: any }) {
 
           {/* Authorised Signatory */}
           <div className="flex flex-col items-center justify-end text-center">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Signature_of_John_Hancock.svg"
-              alt="Signature"
-              className="h-8 opacity-70 mb-0.5 grayscale object-contain"
-            />
+            <svg 
+              viewBox="0 0 200 60" 
+              className="h-8 opacity-70 mb-0.5 text-slate-800" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M 20 40 Q 30 10, 50 35 T 80 40 T 120 30 Q 150 10, 180 35" />
+              <path d="M 45 35 L 60 15" />
+              <path d="M 110 35 L 125 15" />
+            </svg>
             <div className="w-full border-t border-slate-300 pt-1.5">
               <p className="text-[8px] font-bold text-[#0b337c] tracking-widest uppercase font-display leading-none">
                 Authorised Signatory
