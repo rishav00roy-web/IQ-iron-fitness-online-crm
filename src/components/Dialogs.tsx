@@ -464,7 +464,7 @@ export default function Dialogs() {
 </div>
 <div className="form-group">
 <label className="form-label">Membership Type</label>
-<select id="edit-membership-type"  value={editForm.membership_type || ""} onChange={(e) => handleEditChange("membership_type", e.target.value)}>
+<select id="edit-membership-type" className="form-select" value={editForm.membership_type || ""} onChange={(e) => handleEditChange("membership_type", e.target.value)}>
 <option value="monthly">Monthly</option>
 <option value="quarterly">Quarterly (3 mo)</option>
 <option value="half_yearly">Half Yearly (6 mo)</option>
@@ -486,7 +486,7 @@ export default function Dialogs() {
 <div className="form-row-2">
 <div className="form-group">
 <label className="form-label">Personal Trainer</label>
-<select id="edit-has-pt"  value={editForm.has_personal_trainer ? "yes" : "no"} onChange={(e) => handleEditChange("has_personal_trainer", e.target.value === "yes")}>
+<select id="edit-has-pt" className="form-select" value={editForm.has_personal_trainer ? "yes" : "no"} onChange={(e) => handleEditChange("has_personal_trainer", e.target.value === "yes")}>
 <option value="no">No PT</option>
 <option value="yes">Has PT</option>
 </select>
@@ -494,7 +494,7 @@ export default function Dialogs() {
 {editForm.has_personal_trainer && (
   <div className="form-group" id="edit-trainer-group">
   <label className="form-label">Trainer Name</label>
-  <select id="edit-trainer-name"  value={editForm.trainer_id || ""} onChange={(e) => handleEditChange("trainer_id", e.target.value)}>
+  <select id="edit-trainer-name" className="form-select" value={editForm.trainer_id || ""} onChange={(e) => handleEditChange("trainer_id", e.target.value)}>
   <option value="">— Select Trainer —</option>
   {trainers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
   </select>
