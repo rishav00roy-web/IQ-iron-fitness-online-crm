@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import InvoiceTemplate from "@/components/InvoiceTemplate";
-import html2canvas from "html2canvas";
+import { toJpeg } from "html-to-image";
 import { jsPDF } from "jspdf";
 
 export default function PrintInvoicePage() {
@@ -22,18 +22,16 @@ export default function PrintInvoicePage() {
       
       if (!element) return;
 
-      // Temporarily remove scaling so html2canvas captures at full resolution
+      // Temporarily remove scaling so html-to-image captures at full resolution
       if (wrapper) wrapper.style.transform = "scale(1)";
       
-      // Static imports are now used at the top of the file
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false
+      // html-to-image bypasses custom CSS parsers and relies on the browser,
+      // fixing modern CSS issues like Tailwind v4's oklch/lab colors
+      const dataUrl = await toJpeg(element, { 
+        quality: 1.0, 
+        pixelRatio: 2 
       });
       
-      const imgData = canvas.toDataURL("image/jpeg", 1.0);
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -41,9 +39,9 @@ export default function PrintInvoicePage() {
       });
       
       const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pdfHeight = (element.offsetHeight * pdfWidth) / element.offsetWidth;
       
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+      pdf.addImage(dataUrl, "JPEG", 0, 0, pdfWidth, pdfHeight);
       
       const blob = pdf.output("blob");
       const url = URL.createObjectURL(blob);
