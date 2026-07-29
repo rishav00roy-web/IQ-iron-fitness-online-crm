@@ -69,9 +69,7 @@ export default function InvoiceTemplate({ member }: { member: any }) {
               border: none !important;
               padding: 0 !important;
               width: 210mm !important;
-              height: 296mm !important;
-              max-height: 296mm !important;
-              overflow: hidden !important;
+              min-height: 296mm !important;
               page-break-after: avoid !important;
               page-break-inside: avoid !important;
             }

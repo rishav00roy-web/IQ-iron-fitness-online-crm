@@ -75,10 +75,18 @@ export default function PrintInvoicePage() {
 
   useEffect(() => {
     if (!loading && member) {
-      // Small delay to ensure images/fonts are painted before printing
-      setTimeout(() => {
+      // Wait for fonts and images to load before printing
+      const imagePromises = Array.from(document.images).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      });
+
+      Promise.all([document.fonts.ready, ...imagePromises]).then(() => {
         window.print();
-      }, 500);
+      });
     }
   }, [loading, member]);
 
