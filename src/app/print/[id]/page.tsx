@@ -9,6 +9,42 @@ export default function PrintInvoicePage() {
   const { id } = useParams();
   const [member, setMember] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    try {
+      setIsGeneratingPDF(true);
+      const element = document.getElementById("invoice-template");
+      if (!element) return;
+      
+      const html2canvas = (await import("html2canvas")).default;
+      const { jsPDF } = await import("jspdf");
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+      
+      const imgData = canvas.toDataURL("image/jpeg", 1.0);
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`Invoice_${member?.name?.replace(/\s+/g, "_") || "Member"}.pdf`);
+    } catch (err) {
+      console.error("Failed to generate PDF", err);
+      alert("Failed to generate PDF. Please try printing instead.");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
 
   useEffect(() => {
     async function fetchMember() {
@@ -100,6 +136,31 @@ export default function PrintInvoicePage() {
 
   return (
     <div className="bg-slate-100 min-h-screen print:bg-white flex flex-col items-center p-4 print:p-0 overflow-x-auto print:block">
+      {/* Floating Action Buttons for Print/Download */}
+      <div className="print:hidden flex flex-wrap justify-center gap-4 mb-6 mt-2 sticky top-4 z-50">
+        <button 
+          onClick={() => window.print()} 
+          className="bg-[#0b337c] hover:bg-[#1e3a8a] text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+          Print Invoice
+        </button>
+        <button 
+          onClick={handleDownloadPDF} 
+          disabled={isGeneratingPDF}
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
+        >
+          {isGeneratingPDF ? (
+             <span className="animate-pulse">Generating PDF...</span>
+          ) : (
+            <>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+              Download PDF
+            </>
+          )}
+        </button>
+      </div>
+
       {/* Mobile scaling wrapper (only scales on screen, prints at 100%) */}
       <div className="origin-top transform scale-[0.5] sm:scale-[0.7] md:scale-[0.8] lg:scale-100 print:scale-100 transition-transform print:transform-none">
         <div className="w-[794px] max-w-full min-h-[1123px] bg-white shadow-2xl print:shadow-none print:w-full print:min-h-0">
