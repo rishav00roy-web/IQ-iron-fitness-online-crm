@@ -446,21 +446,21 @@ export default function Dialogs() {
 </div>
 <div className="dialog-body">
 <form id="form-edit" noValidate onSubmit={handleEditSubmit}>
-<input id="edit-id"  type="hidden" value={editForm.id || ""} onChange={(e) => handleEditChange("id", e.target.value)}/>
+<input id="edit-id" className="form-input" type="hidden" value={editForm.id || ""} onChange={(e) => handleEditChange("id", e.target.value)}/>
 <div className="form-row-2">
 <div className="form-group">
 <label className="form-label">Full Name <span className="req">*</span></label>
-<input id="edit-name"  required type="text" value={editForm.name || ""} onChange={(e) => handleEditChange("name", e.target.value)}/>
+<input id="edit-name" className="form-input" required type="text" value={editForm.name || ""} onChange={(e) => handleEditChange("name", e.target.value)}/>
 </div>
 <div className="form-group">
 <label className="form-label">WhatsApp Number <span className="req">*</span></label>
-<input id="edit-phone"  required type="tel" value={editForm.phone || ""} onChange={(e) => handleEditChange("phone", e.target.value)}/>
+<input id="edit-phone" className="form-input" required type="tel" value={editForm.phone || ""} onChange={(e) => handleEditChange("phone", e.target.value)}/>
 </div>
 </div>
 <div className="form-row-2">
 <div className="form-group">
 <label className="form-label">Date of Birth</label>
-<input id="edit-dob"  type="date" value={editForm.dob || ""} onChange={(e) => handleEditChange("dob", e.target.value)}/>
+<input id="edit-dob" className="form-input" type="date" value={editForm.dob || ""} onChange={(e) => handleEditChange("dob", e.target.value)}/>
 </div>
 <div className="form-group">
 <label className="form-label">Membership Type</label>
@@ -475,11 +475,11 @@ export default function Dialogs() {
 <div className="form-row-2">
 <div className="form-group">
 <label className="form-label">Start Date</label>
-<input id="edit-start-date"  type="date" value={editForm.start_date || ""} onChange={(e) => handleEditChange("start_date", e.target.value)}/>
+<input id="edit-start-date" className="form-input" type="date" value={editForm.start_date || ""} onChange={(e) => handleEditChange("start_date", e.target.value)}/>
 </div>
 <div className="form-group">
 <label className="form-label">Expiry Date</label>
-<input id="edit-expiry"  type="date" value={editForm.expiry_date || ""} onChange={(e) => handleEditChange("expiry_date", e.target.value)}/>
+<input id="edit-expiry" className="form-input" type="date" value={editForm.expiry_date || ""} onChange={(e) => handleEditChange("expiry_date", e.target.value)}/>
 </div>
 </div>
 <div className="form-divider"><span>Personal Trainer</span></div>
@@ -507,7 +507,7 @@ export default function Dialogs() {
       <label className="form-label">PT Fee <span className="req">*</span></label>
       <div className="input-prefix-wrap">
         <span className="input-prefix currency-prefix">₹</span>
-        <input id="edit-pt-fee" min="0" placeholder="0" type="number" value={editForm.pt_fee || ''} onChange={(e) => handleEditChange('pt_fee', e.target.value)}/>
+        <input id="edit-pt-fee" className="form-input prefixed" min="0" placeholder="0" type="number" value={editForm.pt_fee || ''} onChange={(e) => handleEditChange('pt_fee', e.target.value)}/>
       </div>
     </div>
     <div></div>
@@ -519,21 +519,21 @@ export default function Dialogs() {
 <label className="form-label">Total Fee</label>
 <div className="input-prefix-wrap">
 <span className="input-prefix currency-prefix">₹</span>
-<input id="edit-total-fee"  min="0" type="number"  value={editForm.total_fee || ""} onChange={(e) => handleEditChange("total_fee", e.target.value)}/>
+<input id="edit-total-fee" className="form-input prefixed" min="0" type="number"  value={editForm.total_fee || ""} onChange={(e) => handleEditChange("total_fee", e.target.value)}/>
 </div>
 </div>
 <div className="form-group">
 <label className="form-label">Add Payment</label>
 <div className="input-prefix-wrap">
 <span className="input-prefix currency-prefix">₹</span>
-<input id="edit-add-payment"  min="0" placeholder="0" type="number"  value={editForm.add_payment || ""} onChange={(e) => handleEditChange("add_payment", e.target.value)}/>
+<input id="edit-add-payment" className="form-input prefixed" min="0" placeholder="0" type="number"  value={editForm.add_payment || ""} onChange={(e) => handleEditChange("add_payment", e.target.value)}/>
 </div>
 </div>
 <div className="form-group">
 <label className="form-label">Balance Due</label>
 <div className="input-prefix-wrap">
 <span className="input-prefix currency-prefix">₹</span>
-<input id="edit-balance" type="number" value={Math.max(0, (editForm.pending_amount || 0) - (editForm.add_payment || 0))} readOnly/>
+<input id="edit-balance" className="form-input prefixed" type="number" value={Math.max(0, (editForm.pending_amount || 0) - (editForm.add_payment || 0))} readOnly/>
 </div>
 </div>
 </div>
@@ -541,12 +541,12 @@ export default function Dialogs() {
 <div className="form-row-2">
 <div className="form-group">
 <label className="form-label">Renewal Streak 🔥</label>
-<input id="edit-streak"  min="0" placeholder="0" type="number"  value={editForm.renewal_streak || ""} onChange={(e) => handleEditChange("renewal_streak", e.target.value)}/>
+<input id="edit-streak" className="form-input" min="0" placeholder="0" type="number"  value={editForm.renewal_streak || ""} onChange={(e) => handleEditChange("renewal_streak", e.target.value)}/>
 <span className="form-hint">Times this member has renewed</span>
 </div>
 <div className="form-group">
 <label className="form-label">Internal Notes</label>
-<textarea id="edit-notes"  placeholder="Goals, health notes, preferences…" rows={2} value={editForm.notes || ""} onChange={(e) => handleEditChange("notes", e.target.value)}></textarea>
+<textarea id="edit-notes" className="form-textarea" placeholder="Goals, health notes, preferences…" rows={2} value={editForm.notes || ""} onChange={(e) => handleEditChange("notes", e.target.value)}></textarea>
 </div>
 </div>
 </form>
@@ -595,7 +595,7 @@ export default function Dialogs() {
 <div className="form-group">
 <label className="form-label">Template</label>
 <select
-  className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm text-white"
+  className="form-select"
   value={bMessageType}
   onChange={(e) => {
     setBMessageType(e.target.value as keyof typeof defaultTemplates);
@@ -611,7 +611,7 @@ export default function Dialogs() {
 <div className="form-group">
 <label className="form-label">Custom Message</label>
 <textarea
-  className="w-full bg-slate-900 border border-slate-700 rounded p-2 text-sm h-32 text-white"
+  className="form-textarea"
   value={bMessageText || defaultBMessageText}
   onChange={(e) => setBMessageText(e.target.value)}
 ></textarea>
