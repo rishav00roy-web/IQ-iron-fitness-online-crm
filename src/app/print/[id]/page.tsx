@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import InvoiceTemplate from "@/components/InvoiceTemplate";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 
 export default function PrintInvoicePage() {
   const { id } = useParams();
@@ -23,8 +25,7 @@ export default function PrintInvoicePage() {
       // Temporarily remove scaling so html2canvas captures at full resolution
       if (wrapper) wrapper.style.transform = "scale(1)";
       
-      const html2canvas = (await import("html2canvas")).default;
-      const { jsPDF } = await import("jspdf");
+      // Static imports are now used at the top of the file
 
       const canvas = await html2canvas(element, {
         scale: 2,
