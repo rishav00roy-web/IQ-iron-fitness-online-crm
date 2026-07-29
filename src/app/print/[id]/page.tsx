@@ -57,11 +57,6 @@ export default function PrintInvoicePage() {
     }
   };
 
-  useEffect(() => {
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    setIsIOS(isIOSDevice);
-
     async function fetchMember() {
       if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
         // Fallback to mock data if no Supabase (same as CRMContext)
@@ -126,18 +121,25 @@ export default function PrintInvoicePage() {
 
   useEffect(() => {
     if (!loading && member) {
-      // Wait for fonts and images to load before printing
-      const imagePromises = Array.from(document.images).map((img) => {
-        if (img.complete) return Promise.resolve();
-        return new Promise((resolve) => {
-          img.onload = resolve;
-          img.onerror = resolve;
-        });
-      });
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      
+      setIsIOS(isIOSDevice);
 
-      Promise.all([document.fonts.ready, ...imagePromises]).then(() => {
-        window.print();
-      });
+      if (!isIOSDevice) {
+        // Wait for fonts and images to load before popping the print dialog on Android/Desktop
+        const imagePromises = Array.from(document.images).map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        });
+
+        Promise.all([document.fonts.ready, ...imagePromises]).then(() => {
+          window.print();
+        });
+      }
     }
   }, [loading, member]);
 
@@ -153,16 +155,6 @@ export default function PrintInvoicePage() {
     <div className="bg-slate-100 min-h-screen print:bg-white flex flex-col items-center p-4 print:p-0 overflow-x-auto print:block">
       {/* Floating Action Buttons for Print/Download */}
       <div className="print:hidden flex flex-wrap justify-center gap-4 mb-6 mt-2 sticky top-4 z-50">
-        {!isIOS && (
-          <button 
-            onClick={() => window.print()} 
-            className="bg-[#0b337c] hover:bg-[#1e3a8a] text-white px-6 py-2.5 rounded-full shadow-lg font-bold flex items-center gap-2 transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-            Print Invoice
-          </button>
-        )}
-        
         {isIOS && (
           pdfUrl ? (
             <a 
