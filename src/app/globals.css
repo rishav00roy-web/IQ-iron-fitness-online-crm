@@ -712,6 +712,7 @@ dialog::backdrop {
 
 /* ─── Trainer Dialog ─────────────────────────────────────────────────────── */
 .trainer-add-row { display: flex; gap: 0.6rem; margin-bottom: 1rem; }
+.trainer-add-row .btn { flex-shrink: 0; }
 .trainer-list { display: flex; flex-direction: column; gap: 0.4rem; }
 .trainer-item {
   display: flex; align-items: center; justify-content: space-between;
@@ -1421,17 +1422,17 @@ dialog::backdrop { backdrop-filter: none !important; }
     bottom: 0 !important;
     top: auto !important;
     transform: none !important;
+    overflow: hidden !important;
   }
   dialog[open] {
-    display: flex !important;
-    flex-direction: column !important;
+    display: block !important;
   }
   .dialog-header { padding: 1rem 1.1rem 0.85rem; }
   .dialog-header h3 { font-size: 1.1rem; }
   .dialog-body {
     padding: 12px 14px;
     max-height: calc(95dvh - 180px);
-    flex: 1;
+    overflow-y: auto;
   }
   .dialog-actions {
     padding: 10px 14px max(14px, env(safe-area-inset-bottom));
