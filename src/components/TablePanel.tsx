@@ -9,8 +9,32 @@ export default function TablePanel() {
     activeTab, setActiveTab, 
     searchQuery, setSearchQuery,
     setIsEditOpen, setSelectedMember,
-    setIsBroadcastOpen, setIsDeleteOpen
+    setIsBroadcastOpen, setIsDeleteOpen,
+    settings
   } = useCRM();
+
+  const currency = settings?.system?.currency || "₹";
+
+  const getCurrencyDetails = (symbol: string) => {
+    switch (symbol) {
+      case "$": return { code: "USD", locale: "en-US" };
+      case "€": return { code: "EUR", locale: "en-IE" };
+      case "£": return { code: "GBP", locale: "en-GB" };
+      case "₹":
+      default:
+        return { code: "INR", locale: "en-IN" };
+    }
+  };
+
+  const formatTableCurrency = (amount: number, symbol: string) => {
+    const { code, locale } = getCurrencyDetails(symbol);
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: code,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(Math.round(amount) || 0);
+  };
 
   const [sortCol, setSortCol] = useState<string>('created_at');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
@@ -150,7 +174,7 @@ export default function TablePanel() {
             </thead>
             <tbody id="table-body">
               {loading ? (
-                <tr><td colSpan={10} style={{ textAlign: 'center', padding: '20px' }}>Loading data...</td></tr>
+                <tr><td colSpan={9} style={{ textAlign: 'center', padding: '20px' }}>Loading data...</td></tr>
               ) : sortedMembers.length > 0 ? (
                 sortedMembers.map((member: any) => {
                   const today = new Date().toISOString().slice(0, 10);
@@ -196,7 +220,7 @@ export default function TablePanel() {
                             setSelectedMember(member);
                             setIsEditOpen(true);
                           }}>
-                            ₹{Math.round(balance).toLocaleString('en-IN')}
+                            {formatTableCurrency(balance, currency)}
                             <span className="pay-pct">{payPct}% paid</span>
                           </button>
                         ) : (
@@ -240,7 +264,7 @@ export default function TablePanel() {
                 })
               ) : (
                 <tr>
-                  <td colSpan={10}>
+                  <td colSpan={9}>
                     <div className="empty-state" id="empty-state">
                       <svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="8" x2="16" y1="12" y2="12"></line></svg>
                       <h4 id="empty-title">No Members Found</h4>

@@ -1,4 +1,4 @@
-export function numberToWords(num: number): string {
+export function numberToWords(num: number, symbol: string = '₹'): string {
   const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
   const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
@@ -12,6 +12,19 @@ export function numberToWords(num: number): string {
     return '';
   };
 
-  const words = convert(Math.floor(num));
-  return words ? words + ' Rupees Only' : '';
+  const roundedNum = Math.floor(num);
+
+  let currencyName = 'Rupees';
+  switch (symbol) {
+    case '$': currencyName = 'Dollars'; break;
+    case '€': currencyName = 'Euros'; break;
+    case '£': currencyName = 'Pounds'; break;
+  }
+
+  if (roundedNum === 0) {
+    return 'Zero ' + currencyName + ' Only';
+  }
+
+  const words = convert(roundedNum);
+  return words ? words + ' ' + currencyName + ' Only' : '';
 }

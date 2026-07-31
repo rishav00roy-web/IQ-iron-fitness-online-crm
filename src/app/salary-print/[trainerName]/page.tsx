@@ -15,6 +15,22 @@ export default function PrintSalaryPage() {
   const [actualTrainerName, setActualTrainerName] = useState<string>("Unknown Trainer");
   const [ptClients, setPtClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currency, setCurrency] = useState("₹");
+
+  useEffect(() => {
+    const saved = localStorage.getItem('gymSettings');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.system?.currency) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
+          setCurrency(parsed.system.currency);
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchClients() {
@@ -89,6 +105,7 @@ export default function PrintSalaryPage() {
             basicPay={basicPay} 
             commission={commission}
             ptClients={ptClients} 
+            currency={currency}
           />
         </div>
       </div>

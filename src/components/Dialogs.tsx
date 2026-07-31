@@ -46,7 +46,9 @@ export default function Dialogs() {
     isDeleteOpen, setIsDeleteOpen,
     isPaymentsOpen, setIsPaymentsOpen,
     selectedMember,
-    fetchMembers
+    fetchMembers,
+    settings,
+    handleSettingsChange
   } = useCRM();
 
   const [addForm, setAddForm] = useState({
@@ -220,46 +222,7 @@ export default function Dialogs() {
     }).length;
   }, [members, broadcastAllFilter]);
   
-  const defaultTemplates = {
-    expiry: "Hi {{name}}, your gym membership is expiring on {{expiry_date}}. Please renew.",
-    dues: "Hi {{name}}, you have pending dues of ₹{{due_amount}}. Please clear them.",
-    birthday: "Happy Birthday {{name}}!",
-    welcome: "Welcome to the gym, {{name}}!",
-  };
-
-  const [settings, setSettings] = useState({
-    templates: { ...defaultTemplates },
-    system: { currency: "₹", countryCode: "+91", expiryDays: 7 }
-  });
-
-  const [selectedTpl, setSelectedTpl] = useState<keyof typeof defaultTemplates>('expiry');
-
-  useEffect(() => {
-    const saved = localStorage.getItem('gymSettings');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setSettings(prev => ({
-          templates: { ...prev.templates, ...(parsed.templates || {}) },
-          system: { ...prev.system, ...(parsed.system || {}) }
-        }));
-      } catch {
-        // ignore JSON parse error
-      }
-    }
-  }, []);
-
-  const handleSettingsChange = (field: string, value: any, category: 'templates' | 'system' = 'templates') => {
-    setSettings(prev => {
-      const next = {
-        ...prev,
-        [category]: { ...prev[category], [field]: value }
-      };
-      localStorage.setItem('gymSettings', JSON.stringify(next));
-      return next;
-    });
-  };
+  const [selectedTpl, setSelectedTpl] = useState<'expiry' | 'dues' | 'birthday' | 'welcome'>('expiry');
 
   const renderPreview = (text: string) => {
     if (!text) return <span className="preview-empty">Start typing to preview…</span>;
@@ -277,7 +240,7 @@ export default function Dialogs() {
     );
   };
   
-  const [bMessageType, setBMessageType] = useState<keyof typeof defaultTemplates>('expiry');
+  const [bMessageType, setBMessageType] = useState<'expiry' | 'dues' | 'birthday' | 'welcome'>('expiry');
   const [bMessageText, setBMessageText] = useState('');
 
   const defaultBMessageText = React.useMemo(() => {
@@ -393,7 +356,7 @@ export default function Dialogs() {
     <div className="form-group">
       <label className="form-label">PT Fee <span className="req">*</span></label>
       <div className="input-prefix-wrap">
-        <span className="input-prefix currency-prefix">₹</span>
+        <span className="input-prefix currency-prefix">{settings.system.currency}</span>
         <input className="form-input prefixed" id="add-pt-fee" min="0" placeholder="0" type="number" value={addForm.pt_fee || ''} onChange={(e) => handleAddChange('pt_fee', e.target.value)}/>
       </div>
     </div>
@@ -405,21 +368,21 @@ export default function Dialogs() {
 <div className="form-group">
 <label className="form-label">Total Fee <span className="req">*</span></label>
 <div className="input-prefix-wrap">
-<span className="input-prefix currency-prefix">₹</span>
+<span className="input-prefix currency-prefix">{settings.system.currency}</span>
 <input className="form-input prefixed" id="add-total-fee" min="0" name="add-fee" placeholder="0" type="number" value={addForm.total_fee || ''} onChange={(e) => handleAddChange('total_fee', e.target.value)}/>
 </div>
 </div>
 <div className="form-group">
 <label className="form-label">Paid Now</label>
 <div className="input-prefix-wrap">
-<span className="input-prefix currency-prefix">₹</span>
+<span className="input-prefix currency-prefix">{settings.system.currency}</span>
 <input className="form-input prefixed" id="add-paid-now" min="0" placeholder="0" type="number" value={addForm.paid_now || ''} onChange={(e) => handleAddChange('paid_now', e.target.value)}/>
 </div>
 </div>
 <div className="form-group">
 <label className="form-label">Balance Due</label>
 <div className="input-prefix-wrap">
-<span className="input-prefix currency-prefix">₹</span>
+<span className="input-prefix currency-prefix">{settings.system.currency}</span>
 <input className="form-input prefixed" id="add-balance" name="add-balance" min="0" readOnly type="number" value={addForm.balance_due}/>
 </div>
 <span className="form-hint">Auto = Total − Paid</span>
@@ -506,7 +469,7 @@ export default function Dialogs() {
     <div className="form-group">
       <label className="form-label">PT Fee <span className="req">*</span></label>
       <div className="input-prefix-wrap">
-        <span className="input-prefix currency-prefix">₹</span>
+        <span className="input-prefix currency-prefix">{settings.system.currency}</span>
         <input id="edit-pt-fee" className="form-input prefixed" min="0" placeholder="0" type="number" value={editForm.pt_fee || ''} onChange={(e) => handleEditChange('pt_fee', e.target.value)}/>
       </div>
     </div>
@@ -518,21 +481,21 @@ export default function Dialogs() {
 <div className="form-group">
 <label className="form-label">Total Fee</label>
 <div className="input-prefix-wrap">
-<span className="input-prefix currency-prefix">₹</span>
+<span className="input-prefix currency-prefix">{settings.system.currency}</span>
 <input id="edit-total-fee" className="form-input prefixed" min="0" type="number"  value={editForm.total_fee || ""} onChange={(e) => handleEditChange("total_fee", e.target.value)}/>
 </div>
 </div>
 <div className="form-group">
 <label className="form-label">Add Payment</label>
 <div className="input-prefix-wrap">
-<span className="input-prefix currency-prefix">₹</span>
+<span className="input-prefix currency-prefix">{settings.system.currency}</span>
 <input id="edit-add-payment" className="form-input prefixed" min="0" placeholder="0" type="number"  value={editForm.add_payment || ""} onChange={(e) => handleEditChange("add_payment", e.target.value)}/>
 </div>
 </div>
 <div className="form-group">
 <label className="form-label">Balance Due</label>
 <div className="input-prefix-wrap">
-<span className="input-prefix currency-prefix">₹</span>
+<span className="input-prefix currency-prefix">{settings.system.currency}</span>
 <input id="edit-balance" className="form-input prefixed" type="number" value={Math.max(0, (editForm.pending_amount || 0) - (editForm.add_payment || 0))} readOnly/>
 </div>
 </div>
@@ -569,9 +532,9 @@ export default function Dialogs() {
 <div className="dialog-body">
 <div className="pay-summary-bar" id="pay-summary-bar">
   <div style={{ display: 'flex', gap: '1rem', justifyContent: 'space-between', background: 'var(--surface-2)', padding: '1rem', borderRadius: '8px' }}>
-    <div><strong>Total Fee:</strong> ₹{selectedMember?.total_fee || 0}</div>
-    <div><strong>Paid:</strong> ₹{(selectedMember?.total_fee || 0) - (selectedMember?.pending_amount || 0)}</div>
-    <div style={{ color: (selectedMember?.pending_amount || 0) > 0 ? 'var(--danger)' : 'var(--success)' }}><strong>Pending:</strong> ₹{selectedMember?.pending_amount || 0}</div>
+    <div><strong>Total Fee:</strong> {settings.system.currency}{selectedMember?.total_fee || 0}</div>
+    <div><strong>Paid:</strong> {settings.system.currency}{(selectedMember?.total_fee || 0) - (selectedMember?.pending_amount || 0)}</div>
+    <div style={{ color: (selectedMember?.pending_amount || 0) > 0 ? 'var(--danger)' : 'var(--success)' }}><strong>Pending:</strong> {settings.system.currency}{selectedMember?.pending_amount || 0}</div>
   </div>
 </div>
 
@@ -598,7 +561,7 @@ export default function Dialogs() {
   className="form-select"
   value={bMessageType}
   onChange={(e) => {
-    setBMessageType(e.target.value as keyof typeof defaultTemplates);
+    setBMessageType(e.target.value as 'expiry' | 'dues' | 'birthday' | 'welcome');
     setBMessageText('');
   }}
 >
@@ -673,7 +636,7 @@ export default function Dialogs() {
     <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-2)', padding: '0.5rem 1rem', borderRadius: '4px' }}>
       <span>{t.name}</span>
       <button type="button" className="icon-btn delete" onClick={() => deleteTrainer(t.id)}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
     </div>
   ))}

@@ -15,6 +15,22 @@ export default function PrintInvoicePage() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
   const [isIOS, setIsIOS] = useState(false);
+  const [currency, setCurrency] = useState("₹");
+
+  useEffect(() => {
+    const saved = localStorage.getItem('gymSettings');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.system?.currency) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
+          setCurrency(parsed.system.currency);
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
 
   const handleGeneratePDF = async () => {
     try {
@@ -135,6 +151,7 @@ export default function PrintInvoicePage() {
       const userAgent = window.navigator.userAgent.toLowerCase();
       const isIOSDevice = /iphone|ipad|ipod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsIOS(isIOSDevice);
 
       if (!isIOSDevice) {
@@ -228,7 +245,7 @@ export default function PrintInvoicePage() {
       {/* Mobile scaling wrapper (only scales on screen, prints at 100%) */}
       <div id="invoice-wrapper" className="origin-top transform scale-[0.5] sm:scale-[0.7] md:scale-[0.8] lg:scale-100 print:scale-100 transition-transform print:transform-none">
         <div className="w-[794px] max-w-full min-h-[1123px] bg-white shadow-2xl print:shadow-none print:w-full print:min-h-0">
-          <InvoiceTemplate member={member} />
+          <InvoiceTemplate member={member} currency={currency} />
         </div>
       </div>
     </div>

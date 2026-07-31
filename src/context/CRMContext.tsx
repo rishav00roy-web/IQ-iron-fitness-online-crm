@@ -62,6 +62,22 @@ type CRMContextType = {
   setSearchQuery: (q: string) => void;
   activeTab: string;
   setActiveTab: (t: string) => void;
+
+  // Settings State
+  settings: {
+    templates: {
+      expiry: string;
+      dues: string;
+      birthday: string;
+      welcome: string;
+    };
+    system: {
+      currency: string;
+      countryCode: string;
+      expiryDays: number;
+    };
+  };
+  handleSettingsChange: (field: string, value: any, category?: 'templates' | 'system') => void;
 };
 
 const CRMContext = createContext<CRMContextType | undefined>(undefined);
@@ -84,6 +100,46 @@ export function CRMProvider({ children }: { children: ReactNode }) {
   
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+
+  // Settings State
+  const defaultTemplates = {
+    expiry: "Hi {{name}}, your gym membership is expiring on {{expiry_date}}. Please renew.",
+    dues: "Hi {{name}}, you have pending dues of ₹{{due_amount}}. Please clear them.",
+    birthday: "Happy Birthday {{name}}!",
+    welcome: "Welcome to the gym, {{name}}!",
+  };
+
+  const [settings, setSettings] = useState({
+    templates: { ...defaultTemplates },
+    system: { currency: "₹", countryCode: "+91", expiryDays: 7 }
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem('gymSettings');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setSettings(prev => ({
+          templates: { ...prev.templates, ...(parsed.templates || {}) },
+          system: { ...prev.system, ...(parsed.system || {}) }
+        }));
+      } catch {
+        // ignore JSON parse error
+      }
+    }
+  }, []);
+
+  const handleSettingsChange = (field: string, value: any, category: 'templates' | 'system' = 'templates') => {
+    setSettings(prev => {
+      const next = {
+        ...prev,
+        [category]: { ...prev[category], [field]: value }
+      };
+      localStorage.setItem('gymSettings', JSON.stringify(next));
+      return next;
+    });
+  };
 
   const fetchTrainers = async () => {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
@@ -119,13 +175,42 @@ export function CRMProvider({ children }: { children: ReactNode }) {
       setTrainers(prev => prev.filter(t => t.id !== id));
       return true;
     }
-    const { error } = await supabase.from('trainers').delete().eq('id', id);
-    if (!error) {
+    
+    // First, update members who have this trainer
+    // Set trainer_id to null, has_personal_trainer to false, and pt_fee to 0
+    const { error: memberError } = await supabase
+      .from('members')
+      .update({ trainer_id: null, has_personal_trainer: false, pt_fee: 0 })
+      .eq('trainer_id', id);
+
+    if (memberError) {
+      console.error("Error unlinking trainer from members:", memberError);
+      alert("Failed to delete trainer. Error unlinking from associated members.");
+      return false;
+    }
+
+    // Next, delete associated payroll records for this trainer
+    const { error: payrollError } = await supabase
+      .from('payroll')
+      .delete()
+      .eq('trainer_id', id);
+
+    if (payrollError) {
+      console.error("Error deleting trainer payroll:", payrollError);
+      alert("Failed to delete trainer. Error deleting associated payroll records.");
+      return false;
+    }
+
+    // Finally, delete the trainer
+    const { error: trainerError } = await supabase.from('trainers').delete().eq('id', id);
+    if (!trainerError) {
       fetchTrainers();
+      fetchMembers(); // Update members in UI since their trainer association has changed
       return true;
     }
-    console.error("Error deleting trainer:", error);
-    alert("Failed to delete trainer. Please check database permissions or associated members.");
+
+    console.error("Error deleting trainer:", trainerError);
+    alert("Failed to delete trainer. Please check database permissions.");
     return false;
   };
 
@@ -207,7 +292,8 @@ export function CRMProvider({ children }: { children: ReactNode }) {
       isPaymentsOpen, setIsPaymentsOpen,
       selectedMember, setSelectedMember,
       searchQuery, setSearchQuery,
-      activeTab, setActiveTab
+      activeTab, setActiveTab,
+      settings, handleSettingsChange
     }}>
       {children}
     </CRMContext.Provider>

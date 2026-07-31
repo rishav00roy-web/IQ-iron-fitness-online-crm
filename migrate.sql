@@ -7,7 +7,7 @@ CREATE TABLE trainers (
 
 CREATE TABLE payroll (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  trainer_id UUID REFERENCES trainers(id) NOT NULL,
+  trainer_id UUID REFERENCES trainers(id) ON DELETE CASCADE NOT NULL,
   period TEXT NOT NULL,
   basic_pay NUMERIC DEFAULT 0,
   commission NUMERIC DEFAULT 0,
@@ -18,7 +18,7 @@ CREATE TABLE payroll (
 
 -- 2. Add Relational Columns to Members
 ALTER TABLE members 
-  ADD COLUMN trainer_id UUID REFERENCES trainers(id),
+  ADD COLUMN trainer_id UUID REFERENCES trainers(id) ON DELETE SET NULL,
   ADD COLUMN pt_fee NUMERIC DEFAULT 0;
 
 -- 3. Migration: Backfill Trainers & Link Members
@@ -49,3 +49,12 @@ CREATE POLICY "Enable all access for anon" ON payroll FOR ALL USING (true) WITH 
 
 -- 6. Add Mock Trainer
 INSERT INTO trainers (id, name) VALUES (gen_random_uuid(), 'Mock Trainer') ON CONFLICT DO NOTHING;
+
+-- 7. Update Existing Constraints (For already deployed databases)
+ALTER TABLE members
+  DROP CONSTRAINT IF EXISTS members_trainer_id_fkey,
+  ADD CONSTRAINT members_trainer_id_fkey FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE SET NULL;
+
+ALTER TABLE payroll
+  DROP CONSTRAINT IF EXISTS payroll_trainer_id_fkey,
+  ADD CONSTRAINT payroll_trainer_id_fkey FOREIGN KEY (trainer_id) REFERENCES trainers(id) ON DELETE CASCADE;

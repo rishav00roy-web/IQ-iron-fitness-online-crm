@@ -7,7 +7,30 @@ import { supabase } from "@/lib/supabase";
 import { Dumbbell, DollarSign, FileText, ArrowLeft, Users } from "lucide-react";
 
 function SalaryContent() {
-  const { members, trainers: contextTrainers, loading, setIsTrainersOpen } = useCRM();
+  const { members, trainers: contextTrainers, loading, setIsTrainersOpen, settings } = useCRM();
+
+  const currency = settings?.system?.currency || "₹";
+
+  const getCurrencyDetails = (symbol: string) => {
+    switch (symbol) {
+      case "$": return { code: "USD", locale: "en-US" };
+      case "€": return { code: "EUR", locale: "en-IE" };
+      case "£": return { code: "GBP", locale: "en-GB" };
+      case "₹":
+      default:
+        return { code: "INR", locale: "en-IN" };
+    }
+  };
+
+  const formatSalaryCurrency = (amount: number, symbol: string) => {
+    const { code, locale } = getCurrencyDetails(symbol);
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: code,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount || 0);
+  };
   const router = useRouter();
 
   const currentPeriod = useMemo(() => new Date().toISOString().slice(0, 7), []); // YYYY-MM
@@ -143,7 +166,7 @@ function SalaryContent() {
                   {/* Pay Config */}
                   <div style={{ background: 'var(--bg-3)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-1)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                      <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-3)', fontFamily: '"DM Mono", monospace' }}>Basic Pay (₹)</label>
+                      <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-3)', fontFamily: '"DM Mono", monospace' }}>Basic Pay ({currency})</label>
                       <input 
                         type="number" 
                         className="form-input"
@@ -154,7 +177,7 @@ function SalaryContent() {
                     </div>
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-1)' }}>
-                      <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-3)', fontFamily: '"DM Mono", monospace' }}>PT Commission (₹)</label>
+                      <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-3)', fontFamily: '"DM Mono", monospace' }}>PT Commission ({currency})</label>
                       <input 
                         type="number" 
                         className="form-input"
@@ -173,7 +196,7 @@ function SalaryContent() {
                         <DollarSign />
                       </div>
                     </div>
-                    <div className="metric-value" style={{ fontSize: '2.2rem', marginTop: '0.5rem' }}>₹ {totalSalary.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                    <div className="metric-value" style={{ fontSize: '2.2rem', marginTop: '0.5rem' }}>{formatSalaryCurrency(totalSalary, currency)}</div>
                   </div>
 
                 </div>

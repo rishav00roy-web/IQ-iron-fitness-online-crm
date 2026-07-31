@@ -3,7 +3,30 @@ import React, { useMemo } from "react";
 import { useCRM } from "@/context/CRMContext";
 
 export default function Metrics() {
-  const { members, setActiveTab } = useCRM();
+  const { members, setActiveTab, settings } = useCRM();
+
+  const currency = settings?.system?.currency || "₹";
+
+  const getCurrencyDetails = (symbol: string) => {
+    switch (symbol) {
+      case "$": return { code: "USD", locale: "en-US" };
+      case "€": return { code: "EUR", locale: "en-IE" };
+      case "£": return { code: "GBP", locale: "en-GB" };
+      case "₹":
+      default:
+        return { code: "INR", locale: "en-IN" };
+    }
+  };
+
+  const formatMetricCurrency = (amount: number, symbol: string) => {
+    const { code, locale } = getCurrencyDetails(symbol);
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: code,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(Math.round(amount) || 0);
+  };
 
   const stats = useMemo(() => {
     let active = 0;
@@ -106,10 +129,10 @@ export default function Metrics() {
           <div className="metric-top">
             <span className="metric-label">Pending Dues</span>
             <div className="metric-icon --dues">
-              <span>₹</span>
+              <span>{currency}</span>
             </div>
           </div>
-          <div className="metric-value" id="m-dues-val">₹{stats.pendingDues}</div>
+          <div className="metric-value" id="m-dues-val">{formatMetricCurrency(stats.pendingDues, currency)}</div>
           <div className="metric-sub" id="m-dues-sub">{stats.pendingCount} members pending</div>
         </div>
         <div className="metric-card --birthday js-metric-tab" data-tab="birthdays" style={{ cursor: 'pointer' }} title="View Birthday members" onClick={() => setActiveTab('birthdays')}>
